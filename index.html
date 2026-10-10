@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>อาณาจักรของน้องอุ้ม - คณิตคิดไว</title>
+  <!-- iOS / iPad Web App Configuration (ติดตั้งลง iPad เป็นแอปเต็มจอได้ทันที) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="คณิตคิดไว">
+  <meta name="theme-color" content="#5f27cd">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Google Fonts: Mali, Kanit & Fredoka เพื่อความน่ารัก สดใส เหมาะสำหรับเด็ก -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Mali:wght@500;700&family=Fredoka:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- พื้นหลังดาวและฟองสบู่เวทมนตร์ -->
+  <div class="magic-background">
+    <div class="bubble b1"></div>
+    <div class="bubble b2"></div>
+    <div class="bubble b3"></div>
+    <div class="bubble b4"></div>
+    <div class="bubble b5"></div>
+    <div class="sparkle s1">✨</div>
+    <div class="sparkle s2">⭐</div>
+    <div class="sparkle s3">✨</div>
+    <div class="sparkle s4">🌟</div>
+  </div>
+
+  <!-- คอนเทนเนอร์หลัก: จบในหน้าเดียว 100% ไม่ต้องเลื่อนจอ -->
+  <div class="game-container">
+    <!-- แถบหัวเรื่องด้านบนสุด -->
+    <header class="game-header-top">
+      <div class="title-badge">
+        <span class="crown-icon">👑</span>
+        <h1 class="game-title">อาณาจักรของน้องอุ้ม</h1>
+        <span class="grade-tag">คณิตคิดไว</span>
+      </div>
+
+      <!-- เลือกระดับความยาก (เรียงจากมากไปน้อย: 1,000 -> 500 -> 100) -->
+      <div class="level-selector">
+        <button class="level-tab active" data-max="1000" data-name="ท้าทาย">
+          🌟 ไม่เกิน 1,000
+        </button>
+        <button class="level-tab" data-max="500" data-name="ปานกลาง">
+          ⚔️ ไม่เกิน 500
+        </button>
+        <button class="level-tab" data-max="100" data-name="ง่าย">
+          🌱 ไม่เกิน 100
+        </button>
+      </div>
+
+    </header>
+
+    <!-- พื้นที่หลักแบบสมมาตร: เสาสถิติซ้าย | โจทย์แนวตั้ง | แป้นพิมพ์ | เสาสถิติขวา -->
+    <div class="game-main-split">
+      <!-- เสาสถิติฝั่งซ้าย: คอมโบ และ คะแนน (Symmetrical Left Sidebar) -->
+      <aside class="side-stats-column left-side-stats" aria-label="แถบสถิติด้านซ้าย">
+        <!-- การ์ดคอมโบ มีไฟลุก -->
+        <div id="sideComboCard" class="stat-card side-card combo-card" title="คอมโบความต่อเนื่อง">
+          <span class="side-card-icon">🔥</span>
+          <span class="side-card-label">คอมโบ</span>
+          <span id="comboText" class="side-card-val">x0</span>
+        </div>
+
+        <!-- การ์ดคะแนนปัจจุบัน -->
+        <div class="stat-card side-card score-card" title="คะแนนปัจจุบัน">
+          <span class="side-card-icon">⭐</span>
+          <span class="side-card-label">คะแนน</span>
+          <span id="scoreText" class="side-card-val">0</span>
+        </div>
+      </aside>
+
+      <!-- ฝั่งซ้าย: โจทย์แนวตั้งขนาดใหญ่ พร้อมระบบแสดงจำนวนทด (Carry Row) สมมาตร 100% -->
+      <section class="card vertical-math-card" aria-label="โจทย์คณิตศาสตร์แนวตั้ง">
+        <!-- หัวการ์ดโจทย์: ข้อมูลข้อ และ ปุ่มสลับ/เปลี่ยนข้อ จัดวางสมมาตรซ้าย-ขวา -->
+        <div class="math-card-header">
+          <div class="badge-group">
+            <span class="question-number-badge" id="questionBadge">ข้อที่ 1</span>
+            <span class="mode-badge" id="modeBadge">บวกและลบ</span>
+          </div>
+          <!-- ปุ่มเปลี่ยนโจทย์ & ปุ่มสลับเลข -->
+          <div class="math-action-buttons">
+            <button type="button" id="changeQuestionBtn" class="pill-btn change-btn" title="เปลี่ยนโจทย์ข้อใหม่">
+              <span class="btn-icon">🔄</span> เปลี่ยนโจทย์
+            </button>
+            <button type="button" id="swapNumbersBtn" class="pill-btn swap-btn" title="สลับตำแหน่งตัวเลขบน-ล่าง">
+              <span class="btn-icon">🔀</span> สลับเลข
+            </button>
+          </div>
+        </div>
+
+        <!-- กล่องโจทย์แนวตั้ง อยู่กึ่งกลาง สมมาตร 100% ตัวเลขสูงขึ้น เด่นชัด -->
+        <div class="math-board-wrapper">
+          <!-- ตารางโจทย์คณิตศาสตร์แนวตั้ง (Vertical Math Grid) กึ่งกลางสมมาตร -->
+          <div class="vertical-math-grid" id="verticalMathGrid">
+            <!-- 1. แถวจำนวนทด (Carry Row) -->
+            <div class="grid-row carry-row">
+              <div class="grid-cell th-slot">
+                <span id="carryTh" class="carry-badge" style="display:none;">1</span>
+              </div>
+              <div class="grid-cell h-slot">
+                <span id="carryH" class="carry-badge" style="display:none;">1</span>
+              </div>
+              <div class="grid-cell t-slot">
+                <span id="carryT" class="carry-badge" style="display:none;">1</span>
+              </div>
+              <div class="grid-cell u-slot"></div>
+              <div class="grid-cell op-slot"></div>
+            </div>
+
+            <!-- กล่องตัวเลขโจทย์ (ตัวตั้งและตัวบวก/ลบ พร้อมเครื่องหมายอยู่หลังตรงกึ่งกลาง) -->
+            <div class="math-problem-body">
+              <!-- 2. แถวตัวตั้ง (Top Number) -->
+              <div class="grid-row top-row">
+                <div class="grid-cell th-slot" id="topTh"></div>
+                <div class="grid-cell h-slot" id="topH"></div>
+                <div class="grid-cell t-slot" id="topT"></div>
+                <div class="grid-cell u-slot" id="topU"></div>
+                <div class="grid-cell op-slot"></div>
+              </div>
+
+              <!-- 3. แถวตัวบวก/ลบ (Bottom Number) -->
+              <div class="grid-row bot-row">
+                <div class="grid-cell th-slot" id="botTh"></div>
+                <div class="grid-cell h-slot" id="botH"></div>
+                <div class="grid-cell t-slot" id="botT"></div>
+                <div class="grid-cell u-slot" id="botU"></div>
+                <div class="grid-cell op-slot"></div>
+              </div>
+
+              <!-- เครื่องหมาย + หรือ - อยู่ด้านหลังตรงระหว่างกลางตัวเลขโจทย์ -->
+              <div class="op-between-right" id="vertOpText">+</div>
+            </div>
+
+            <!-- เส้นคั่นเดี่ยว -->
+            <div class="grid-divider-single"></div>
+
+            <!-- 4. แถวคำตอบ (Answer Row ที่ตรงหลักเป๊ะๆ) -->
+            <div class="grid-row ans-row" id="answerDisplay">
+              <div class="grid-cell th-slot ans-slot" id="ansTh"></div>
+              <div class="grid-cell h-slot ans-slot" id="ansH"></div>
+              <div class="grid-cell t-slot ans-slot" id="ansT"></div>
+              <div class="grid-cell u-slot ans-slot active" id="ansU">
+                <span class="slot-cursor">|</span>
+              </div>
+              <div class="grid-cell op-slot"></div>
+            </div>
+
+            <!-- เส้นคั่นคู่ใต้คำตอบ -->
+            <div class="grid-divider-double"></div>
+          </div>
+        </div>
+
+        <!-- กล่องเก็บคำตอบดั้งเดิมสำหรับคำนวณ (ซ่อนเบื้องหลัง) -->
+        <span id="answerValue" style="display:none;"></span>
+        <span id="answerPlaceholder" style="display:none;"></span>
+        <span id="num1Text" style="display:none;"></span>
+        <span id="num2Text" style="display:none;"></span>
+        <span id="opText" style="display:none;"></span>
+
+        <!-- ส่วนล่าง: สไลม์คู่ใจ ฟองคำพูด และคำแนะนำการคิดเลข -->
+        <div class="math-bottom-bar">
+          <div class="slime-companion-row">
+            <!-- น้องสไลม์คู่ใจ (แสดงปฏิกิริยา ดีใจ/เสียใจ) -->
+            <div id="slimeMascot" class="slime-mascot idle" role="img" aria-label="น้องสไลม์">
+              <div class="slime-crown">👑</div>
+              <svg viewBox="0 0 200 170" class="slime-svg">
+                <defs>
+                  <linearGradient id="slimeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#72f790" id="gradStop1" />
+                    <stop offset="65%" stop-color="#2ecc71" id="gradStop2" />
+                    <stop offset="100%" stop-color="#1b9e52" id="gradStop3" />
+                  </linearGradient>
+                  <linearGradient id="highlightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                  </linearGradient>
+                  <filter id="slimeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="8" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+
+                <ellipse cx="100" cy="155" rx="72" ry="14" class="slime-shadow" />
+                <path id="slimeBody" class="slime-body" d="M100,20 C145,20 180,60 178,110 C175,145 150,152 100,152 C50,152 25,145 22,110 C20,60 55,20 100,20 Z" fill="url(#slimeGrad)" />
+                <ellipse cx="65" cy="50" rx="20" ry="12" transform="rotate(-25 65 50)" fill="url(#highlightGrad)" />
+                <circle cx="50" cy="70" r="5" fill="#ffffff" opacity="0.6" />
+                <ellipse id="blushLeft" cx="56" cy="110" rx="10" ry="6" fill="#ff7675" opacity="0.6" />
+                <ellipse id="blushRight" cx="144" cy="110" rx="10" ry="6" fill="#ff7675" opacity="0.6" />
+
+                <!-- กลุ่มดวงตา -->
+                <g id="slimeEyes" class="slime-eyes">
+                  <circle class="eye-outer" cx="72" cy="94" r="13" fill="#2c3e50" />
+                  <circle class="eye-shine-1" cx="68" cy="89" r="4.5" fill="#ffffff" />
+                  <circle class="eye-shine-2" cx="76" cy="98" r="2" fill="#ffffff" />
+
+                  <circle class="eye-outer" cx="128" cy="94" r="13" fill="#2c3e50" />
+                  <circle class="eye-shine-1" cx="124" cy="89" r="4.5" fill="#ffffff" />
+                  <circle class="eye-shine-2" cx="132" cy="98" r="2" fill="#ffffff" />
+                </g>
+
+                <g id="slimeHappyEyes" class="slime-happy-eyes" style="display: none;">
+                  <path d="M60,95 Q72,80 84,95" stroke="#1e3799" stroke-width="4.5" fill="none" stroke-linecap="round" />
+                  <path d="M116,95 Q128,80 140,95" stroke="#1e3799" stroke-width="4.5" fill="none" stroke-linecap="round" />
+                </g>
+
+                <g id="slimeSadEyes" class="slime-sad-eyes" style="display: none;">
+                  <path d="M62,88 L80,98 M62,98 L80,88" stroke="#741d1d" stroke-width="4" stroke-linecap="round" />
+                  <path d="M120,88 L138,98 M120,98 L138,88" stroke="#741d1d" stroke-width="4" stroke-linecap="round" />
+                </g>
+
+                <path id="slimeMouth" class="slime-mouth" d="M92,118 Q100,128 108,118" stroke="#2c3e50" stroke-width="4" fill="none" stroke-linecap="round" />
+              </svg>
+              <div id="particleContainer" class="particle-container"></div>
+            </div>
+
+            <div class="slime-speech-group">
+              <div id="slimeSpeech" class="slime-speech">
+                คิดจากหลักหน่วยก่อนนะ สะสมเหรียญแลกขนมกัน! 🪙
+              </div>
+              <div class="rtl-guide">
+                <span class="rtl-arrow">⬅️</span> ใส่เลขจาก <b>ขวาไปซ้าย</b> (หน่วย ➔ สิบ ➔ ร้อย)
+              </div>
+            </div>
+          </div>
+
+          <div id="feedbackMsg" class="feedback-msg">
+            ใส่หลักหน่วยก่อนนะ (มีตัวทดจะลอยขึ้นมาให้เห็นเลย) ⬅️
+          </div>
+        </div>
+      </section>
+
+      <!-- ฝั่งขวา: On-Screen Numpad -->
+      <section class="right-control-panel">
+        <!-- On-Screen Numpad สำหรับเด็ก -->
+        <div class="numpad-container" aria-label="แผงปุ่มตัวเลขบนหน้าจอ">
+          <div class="numpad-grid">
+            <button type="button" class="pad-btn num-btn" data-key="1">1</button>
+            <button type="button" class="pad-btn num-btn" data-key="2">2</button>
+            <button type="button" class="pad-btn num-btn" data-key="3">3</button>
+
+            <button type="button" class="pad-btn num-btn" data-key="4">4</button>
+            <button type="button" class="pad-btn num-btn" data-key="5">5</button>
+            <button type="button" class="pad-btn num-btn" data-key="6">6</button>
+
+            <button type="button" class="pad-btn num-btn" data-key="7">7</button>
+            <button type="button" class="pad-btn num-btn" data-key="8">8</button>
+            <button type="button" class="pad-btn num-btn" data-key="9">9</button>
+
+            <!-- ปุ่มลบทีละตัว -->
+            <button type="button" class="pad-btn action-btn del-btn" data-action="backspace" title="ลบตัวเลขล่าสุด">
+              <span class="btn-icon">⌫</span>
+              <span class="btn-text">ลบ</span>
+            </button>
+
+            <!-- ปุ่มเลข 0 -->
+            <button type="button" class="pad-btn num-btn" data-key="0">0</button>
+
+            <!-- ปุ่มล้างทั้งหมด -->
+            <button type="button" class="pad-btn action-btn clear-btn" data-action="clear" title="ล้างคำตอบ">
+              <span class="btn-icon">🗑️</span>
+              <span class="btn-text">ล้าง</span>
+            </button>
+          </div>
+
+          <!-- ปุ่มส่งคำตอบ ขนาดยาว เด่น ชัดเจน -->
+          <button type="button" id="submitBtn" class="pad-btn submit-btn" data-action="submit">
+            <span class="submit-shine"></span>
+            <span class="submit-icon">🚀</span>
+            <span class="submit-text">ส่งคำตอบ</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- เสาสถิติฝั่งขวา: เป้าหมาย 30 ข้อ, สูงสุด และ ปุ่มเครื่องมือ (Symmetrical Right Sidebar) -->
+      <aside class="side-stats-column right-side-stats" aria-label="แถบสถิติด้านขวา">
+        <!-- การ์ดเป้าหมาย 30 ข้อ (ขอให้ยายพาไปซื้อขนม) -->
+        <div class="stat-card side-card target-card" id="targetStatCard" title="คลิกเพื่อขยายดูภาพรางวัลใหญ่ 👵🍭" aria-label="เป้าหมาย 30 ข้อ: คลิกเพื่อดูภาพรางวัลใหญ่">
+          <span class="side-card-icon target-bounce">🎯</span>
+          <span class="side-card-label">เป้าหมาย</span>
+          <span id="targetProgressText" class="side-card-val">0/30</span>
+          <div class="target-progress-track">
+            <div id="targetProgressFill" class="target-progress-fill" style="width: 0%;"></div>
+          </div>
+          <span class="side-card-hint" id="targetHintText">ยายพาซื้อขนม 👵</span>
+        </div>
+
+        <!-- การ์ดสถิติสูงสุด -->
+        <div class="stat-card side-card best-card" title="สถิติสูงสุด">
+          <span class="side-card-icon">🏆</span>
+          <span class="side-card-label">สูงสุด</span>
+          <span id="bestScoreText" class="side-card-val">0</span>
+        </div>
+
+        <!-- ปุ่มคำสั่งด่วนด้านขวา -->
+        <div class="side-quick-actions">
+          <button type="button" id="resetScoreBtn" class="side-action-btn reset-btn" title="รีเซ็ตคะแนนและเริ่มข้อ 1 ใหม่" aria-label="รีเซ็ตคะแนนและเริ่มข้อ 1 ใหม่">
+            <span class="action-btn-icon">🔄</span>
+            <span class="action-btn-label">รีเซ็ต</span>
+          </button>
+          <button type="button" id="soundToggleBtn" class="side-action-btn" title="ปรับระดับเสียง / เปิดปิดเสียง" aria-label="ปรับระดับเสียง">
+            <span id="soundIcon" class="action-btn-icon">🔊</span>
+            <span class="action-btn-label">เสียง</span>
+          </button>
+          <button type="button" id="newQuestionBtn" class="side-action-btn skip-btn" title="ข้ามไปข้อถัดไป" aria-label="ข้ามไปข้อถัดไป">
+            <span class="action-btn-icon">⏭️</span>
+            <span class="action-btn-label">ข้ามข้อ</span>
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       Modal: แจ้งเตือนรางวัลครบ 30 ข้อ (ขอให้ยายพาไปซื้อขนม)
+       ========================================================= -->
+  <div id="rewardModal" class="reward-overlay" style="display: none;" aria-hidden="true">
+    <div class="reward-card" role="dialog" aria-modal="true" aria-labelledby="rewardTitle">
+      <button type="button" class="reward-card-close-x" id="rewardCardCloseX" title="ปิดหน้าต่าง">✕</button>
+      <div class="reward-sparkles">✨ 🌟 💖 🌟 ✨</div>
+      <div class="reward-badge" id="rewardBadge">🏆 ภารกิจสำเร็จ! ครบ 30 ข้อ 🏆</div>
+      <div class="grandma-hero">
+        <span class="hero-grandma">👵</span>
+        <span class="hero-heart">❤️</span>
+        <span class="hero-treats">🍦🍭🍫</span>
+      </div>
+      <h2 id="rewardTitle" class="reward-title">ขอให้ยายพาไปซื้อขนมได้เลย! 🎉</h2>
+      <p id="rewardSubtitle" class="reward-subtitle">สุดยอดคนเก่ง! น้องอุ้มคิดเลขถูกต้องครบ 30 ข้อแล้วนะจ๊ะ</p>
+      
+      <div class="reward-speech-box">
+        <div class="speech-intro" id="rewardSpeechIntro">📢 ยื่นหน้านี้ให้คุณยายดูได้เลยนะคนเก่ง:</div>
+        <div class="speech-quote" id="rewardSpeechQuote">
+          "ยายจ๋า... น้องอุ้มคิดเลขครบ 30 ข้อแล้ว<br>
+          <b>พาหนูไปซื้อขนมหน่อยนะคะ! 🍨🧁</b>"
+        </div>
+      </div>
+
+      <button type="button" id="closeRewardBtn" class="reward-ok-btn">
+        <span id="closeRewardBtnText">🎒 เย้! ขอบคุณคุณยาย / เล่นสะสมต่อเลย ✨</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: ยืนยันการรีเซ็ตคะแนน -->
+  <div id="resetConfirmModal" class="confirm-overlay" style="display: none;" aria-hidden="true">
+    <div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
+      <div class="confirm-icon">🔄</div>
+      <h3 id="resetModalTitle" class="confirm-title">รีเซ็ตคะแนนและเริ่มข้อ 1 ใหม่?</h3>
+      <p class="confirm-desc">ต้องการรีเซ็ตคะแนนเป็น 0 และเริ่มนับข้อที่ 1 ใหม่ใช่ไหมครับ?</p>
+
+      <!-- ตัวเลือกถามว่าจะรีเซ็ตแต้มสูงสุดด้วยไหม -->
+      <div class="reset-best-choice-card">
+        <label id="resetCheckboxLabel" class="reset-checkbox-label" for="resetBestCheckbox" title="คลิกเพื่อเลือกรีเซ็ตแต้มสูงสุด">
+          <input type="checkbox" id="resetBestCheckbox" class="reset-checkbox-input" aria-label="รีเซ็ตแต้มสูงสุดด้วย">
+          <span class="reset-custom-checkbox"></span>
+          <div class="reset-checkbox-text-wrap">
+            <span class="reset-checkbox-title">🏆 รีเซ็ตแต้มสูงสุด (<span id="modalBestScoreVal" class="modal-best-score-badge">0</span> คะแนน) ด้วย</span>
+            <span class="reset-checkbox-desc">แตะเพื่อติ๊กถูก หากต้องการล้างสถิติสูงสุดเป็น 0</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="confirm-btn-group">
+        <button type="button" id="cancelResetBtn" class="confirm-btn cancel-btn">ยกเลิก</button>
+        <button type="button" id="confirmResetBtn" class="confirm-btn ok-btn">ใช่, เริ่มข้อ 1 ใหม่</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: ปรับระดับเสียง (Volume Settings) -->
+  <div id="volumeModal" class="confirm-overlay" style="display: none;" aria-hidden="true">
+    <div class="volume-card" role="dialog" aria-modal="true" aria-labelledby="volumeModalTitle">
+      <div class="volume-header">
+        <div class="volume-header-left">
+          <span class="volume-header-icon">🎚️</span>
+          <h3 id="volumeModalTitle" class="volume-title">ปรับระดับเสียง</h3>
+        </div>
+        <button type="button" id="closeVolumeBtn" class="volume-close-btn" title="ปิดหน้าต่างปรับเสียง">✕</button>
+      </div>
+
+      <!-- ปรับระดับเสียงเอฟเฟกต์ (SFX) -->
+      <div class="volume-control-group">
+        <div class="volume-group-header">
+          <div class="volume-group-name-wrap">
+            <span class="volume-group-icon">🔔</span>
+            <span class="volume-group-name">เสียงเอฟเฟกต์ (SFX)</span>
+          </div>
+          <span id="sfxVolumeVal" class="volume-group-percent">80%</span>
+        </div>
+        <div class="volume-slider-row">
+          <span class="slider-icon">🔈</span>
+          <input type="range" id="sfxVolumeSlider" class="volume-range-slider" min="0" max="100" value="80" step="5" aria-label="ระดับเสียงเอฟเฟกต์">
+          <span class="slider-icon">🔊</span>
+        </div>
+        <div class="volume-quick-presets">
+          <button type="button" class="preset-btn" data-target="sfx" data-vol="0">🔇 ปิด</button>
+          <button type="button" class="preset-btn" data-target="sfx" data-vol="40">40%</button>
+          <button type="button" class="preset-btn active" data-target="sfx" data-vol="80">80%</button>
+          <button type="button" class="preset-btn" data-target="sfx" data-vol="100">100%</button>
+        </div>
+      </div>
+
+      <button type="button" id="confirmVolumeBtn" class="volume-ok-btn">
+        <span>ตกลง / ปิดหน้าต่าง ✨</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // ลงทะเบียน Service Worker สำหรับการเล่นแบบ Offline บน iPad
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker registered for iPad offline play', reg))
+          .catch((err) => console.warn('Service Worker registration skipped', err));
+      });
+    }
+  </script>
+</body>
+</html>
