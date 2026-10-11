@@ -1,7 +1,7 @@
 /**
  * =========================================================
  * อาณาจักรของน้องอุ้ม - คณิตคิดไว
- * โจทย์แนวตั้งขนาดใหญ่ + ระบบแสดงจำนวนทด + สะสมครบ 30 ข้อ ขอให้ยายพาไปซื้อขนม
+ * โจทย์แนวตั้งขนาดใหญ่ + ระบบแสดงจำนวนทด + สะสมครบ 100 ข้อ ขอให้ยายพาไปซื้อขนม
  * =========================================================
  */
 
@@ -9,7 +9,7 @@
   'use strict';
 
   // เป้าหมายสะสมจำนวนข้อที่คิดเลขถูกต้อง (ขอให้ยายพาไปซื้อขนม)
-  const TARGET_QUESTIONS = 30;
+  const TARGET_QUESTIONS = 100;
 
   // --- ตัวแปรสถานะของเกม (Game State) ---
   const state = {
@@ -19,19 +19,32 @@
     correctAnswer: 0,
     userAnswer: '',
     questionCount: 1,
-    correctCount: 0, // จำนวนข้อที่ตอบถูก (เป้าหมาย 30 ข้อ)
+    correctCount: 0, // จำนวนข้อที่ตอบถูก (เป้าหมาย 100 ข้อ)
     score: 0, // สะสมข้อละ 1 คะแนน
     combo: 0,
     bestScore: 0,
-    hasCelebratedTarget: false, // ป้องกันการเด้งแจ้งเตือนซ้ำซ้อนเมื่อครบ 30 ข้อ
+    hasCelebratedTarget: false, // ป้องกันการเด้งแจ้งเตือนซ้ำซ้อนเมื่อครบ 100 ข้อ
     maxLimit: 1000, // ค่าเริ่มต้น: ตัวเลขไม่เกิน 1,000 (เรียงจากมากไปน้อย: 1,000 -> 500 -> 100)
     soundEnabled: true,
     sfxVolume: 80, // ระดับเสียงเอฟเฟกต์ (0-100%)
-    isProcessing: false // ป้องกันการกดย้ำขณะกำลังแสดงแอนิเมชันตอบถูก
+    isProcessing: false, // ป้องกันการกดย้ำขณะกำลังแสดงแอนิเมชันตอบถูก
+    mathMode: 'add_sub', // 'add_sub' (การบวกและการลบ) หรือ 'mul_div' (การคูณและการหาร)
+    currentView: 'home', // 'home' (หน้าแรก) หรือ 'game' (กระดานคิดเลข)
+    showHintBox: false // เปิด/ปิด กล่องวิธีคิดแบบ Dropdown ใกล้ๆ ในโหมดคูณและหาร (เริ่มต้นปิดไว้)
   };
 
   // --- การอ้างอิง DOM Elements ---
   const dom = {
+    // หน้าแรก (Home Screen) & ปุ่มเลือกหมวดหมู่ 2 หัวข้อ
+    homeScreen: document.getElementById('homeScreen'),
+    gameScreen: document.getElementById('gameScreen'),
+    chooseAddSubBtn: document.getElementById('chooseAddSubBtn'),
+    chooseMulDivBtn: document.getElementById('chooseMulDivBtn'),
+    homeNavBtn: document.getElementById('homeNavBtn'),
+    currentModeTag: document.getElementById('currentModeTag'),
+    homeSlimeAvatar: document.getElementById('homeSlimeAvatar'),
+    homeSpeechBubble: document.getElementById('homeSpeechBubble'),
+
     num1Text: document.getElementById('num1Text'),
     num2Text: document.getElementById('num2Text'),
     opText: document.getElementById('opText'),
@@ -60,6 +73,12 @@
     newQuestionBtn: document.getElementById('newQuestionBtn'),
     changeQuestionBtn: document.getElementById('changeQuestionBtn'),
     swapNumbersBtn: document.getElementById('swapNumbersBtn'),
+    toggleHintBtn: document.getElementById('toggleHintBtn'),
+    hintCaret: document.getElementById('hintCaret'),
+    mathHintDropdown: document.getElementById('mathHintDropdown'),
+    hintBoxTitle: document.getElementById('hintBoxTitle'),
+    closeHintBoxBtn: document.getElementById('closeHintBoxBtn'),
+    hintStepsList: document.getElementById('hintStepsList'),
     sideComboCard: document.getElementById('sideComboCard'),
     levelTabs: document.querySelectorAll('.level-tab'),
 
@@ -85,7 +104,7 @@
     ansT: document.getElementById('ansT'),
     ansU: document.getElementById('ansU'),
 
-    // ระบบเป้าหมาย 30 ข้อ (ยายพาซื้อขนม)
+    // ระบบเป้าหมาย 100 ข้อ (ยายพาซื้อขนม)
     targetStatCard: document.getElementById('targetStatCard'),
     targetProgressText: document.getElementById('targetProgressText'),
     targetProgressFill: document.getElementById('targetProgressFill'),
@@ -101,7 +120,7 @@
     sfxVolumeSlider: document.getElementById('sfxVolumeSlider'),
     sfxVolumeVal: document.getElementById('sfxVolumeVal'),
 
-    // Modal แจ้งเตือนรางวัล 30 ข้อ
+    // Modal แจ้งเตือนรางวัล 100 ข้อ
     rewardModal: document.getElementById('rewardModal'),
     rewardBadge: document.getElementById('rewardBadge'),
     rewardTitle: document.getElementById('rewardTitle'),
@@ -333,39 +352,117 @@
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  // --- การสร้างโจทย์คณิตศาสตร์ ป.2 (การบวกและการลบแนวตั้ง ไม่เกิน 1,000) ---
+  // --- การจัดการหน้าแรก (Home Screen) & สลับหมวดหมู่ ---
+  function showHomeScreen() {
+    initAudio();
+    playPopSound();
+    state.currentView = 'home';
+    if (dom.homeScreen) dom.homeScreen.style.display = 'flex';
+    if (dom.gameScreen) dom.gameScreen.style.display = 'none';
+
+    if (dom.homeSpeechBubble) {
+      dom.homeSpeechBubble.textContent = getRandomItem([
+        'ยินดีต้อนรับจ้าน้องอุ้ม! วันนี้อยากฝึกคิดเลขเรื่องไหนดีเอ่ย? 💖',
+        'เลือก "การบวกและการลบ" หรือ "การคูณและการหาร" ได้เลยนะจ๊ะ 🍦',
+        'ราชาสไลม์เอาใจช่วยน้องอุ้ม คิดเลขสนุกทุกวันจ้า 👑✨'
+      ]);
+    }
+  }
+
+  function startMathMode(mode) {
+    initAudio();
+    playPopSound();
+    state.mathMode = mode;
+    state.currentView = 'game';
+    state.showHintBox = false; // รีเซ็ต Dropdown วิธีคิดให้ปิดอยู่ตอนเริ่ม เพื่อความสะอาดตาและโจทย์อยู่ตรงกลางเป๊ะ
+
+    try {
+      localStorage.setItem('slime_math_selected_mode', mode);
+    } catch (e) {}
+
+    if (dom.homeScreen) dom.homeScreen.style.display = 'none';
+    if (dom.gameScreen) dom.gameScreen.style.display = 'flex';
+
+    if (dom.currentModeTag) {
+      dom.currentModeTag.textContent = mode === 'add_sub' ? 'การบวกและการลบ' : 'การคูณและการหาร';
+    }
+
+    generateMathProblem();
+  }
+
+  // --- การสร้างโจทย์คณิตศาสตร์ (รองรับทั้ง 1. บวกและลบ  2. คูณและหาร) ---
   function generateMathProblem() {
-    const isAddition = Math.random() < 0.5;
-    state.currentOp = isAddition ? '+' : '-';
+    let n1, n2, ans, op;
 
-    let n1, n2, ans;
+    if (state.mathMode === 'mul_div') {
+      const isMultiplication = Math.random() < 0.5;
+      op = isMultiplication ? '×' : '÷';
+      state.currentOp = op;
 
-    if (isAddition) {
-      if (state.maxLimit === 100) {
-        n1 = getRandomInt(10, 85);
-        n2 = getRandomInt(5, 95 - n1);
-      } else if (state.maxLimit === 500) {
-        n1 = getRandomInt(50, 420);
-        n2 = getRandomInt(20, 490 - n1);
+      if (isMultiplication) {
+        if (state.maxLimit === 100) {
+          // แม่สูตรคูณ ป.2 แม่ 2 ถึง แม่ 10 (ผลคูณไม่เกิน 100)
+          n1 = getRandomInt(2, 10);
+          n2 = getRandomInt(2, Math.min(10, Math.floor(100 / n1)));
+        } else if (state.maxLimit === 500) {
+          // ตัวเลข 2 หลัก คูณ 1 หลัก (ผลคูณไม่เกิน 500)
+          n1 = getRandomInt(12, 55);
+          n2 = getRandomInt(2, Math.min(9, Math.floor(500 / n1)));
+        } else {
+          // ไม่เกิน 1,000: ตัวเลข 2-3 หลัก คูณ 1 หลัก (ผลคูณไม่เกิน 1,000)
+          n1 = getRandomInt(25, 120);
+          n2 = getRandomInt(3, Math.min(9, Math.floor(1000 / n1)));
+        }
+        ans = n1 * n2;
       } else {
-        // ค่าเริ่มต้น: ไม่เกิน 1,000
-        n1 = getRandomInt(100, 850);
-        n2 = getRandomInt(35, 980 - n1);
+        // การหาร: ตัวตั้งหารด้วยตัวหารลงตัว 100% เสมอ (ไม่มีเศษ)
+        if (state.maxLimit === 100) {
+          n2 = getRandomInt(2, 9); // ตัวหาร
+          ans = getRandomInt(2, Math.min(10, Math.floor(100 / n2))); // ผลหาร
+          n1 = n2 * ans; // ตัวตั้ง
+        } else if (state.maxLimit === 500) {
+          n2 = getRandomInt(2, 8);
+          ans = getRandomInt(11, Math.min(55, Math.floor(500 / n2)));
+          n1 = n2 * ans;
+        } else {
+          n2 = getRandomInt(3, 9);
+          ans = getRandomInt(20, Math.min(110, Math.floor(1000 / n2)));
+          n1 = n2 * ans;
+        }
       }
-      ans = n1 + n2;
     } else {
-      // การลบ: ตัวตั้งต้องมากกว่าตัวลบเสมอ และผลลัพธ์ไม่ติดลบ
-      if (state.maxLimit === 100) {
-        n1 = getRandomInt(25, 99);
-        n2 = getRandomInt(10, n1 - 5);
-      } else if (state.maxLimit === 500) {
-        n1 = getRandomInt(120, 490);
-        n2 = getRandomInt(30, n1 - 15);
+      // โหมดการบวกและการลบ
+      const isAddition = Math.random() < 0.5;
+      op = isAddition ? '+' : '-';
+      state.currentOp = op;
+
+      if (isAddition) {
+        if (state.maxLimit === 100) {
+          n1 = getRandomInt(10, 85);
+          n2 = getRandomInt(5, 95 - n1);
+        } else if (state.maxLimit === 500) {
+          n1 = getRandomInt(50, 420);
+          n2 = getRandomInt(20, 490 - n1);
+        } else {
+          // ค่าเริ่มต้น: ไม่เกิน 1,000
+          n1 = getRandomInt(100, 850);
+          n2 = getRandomInt(35, 980 - n1);
+        }
+        ans = n1 + n2;
       } else {
-        n1 = getRandomInt(250, 990);
-        n2 = getRandomInt(50, n1 - 30);
+        // การลบ: ตัวตั้งต้องมากกว่าตัวลบเสมอ และผลลัพธ์ไม่ติดลบ
+        if (state.maxLimit === 100) {
+          n1 = getRandomInt(25, 99);
+          n2 = getRandomInt(10, n1 - 5);
+        } else if (state.maxLimit === 500) {
+          n1 = getRandomInt(120, 490);
+          n2 = getRandomInt(30, n1 - 15);
+        } else {
+          n1 = getRandomInt(250, 990);
+          n2 = getRandomInt(50, n1 - 30);
+        }
+        ans = n1 - n2;
       }
-      ans = n1 - n2;
     }
 
     state.currentNum1 = n1;
@@ -375,23 +472,286 @@
 
     // อัปเดตข้อมูลบนหน้าจอ
     dom.questionBadge.textContent = `ข้อที่ ${state.questionCount}`;
-    dom.modeBadge.textContent = isAddition ? 'การบวกแนวตั้ง' : 'การลบแนวตั้ง';
+    if (state.mathMode === 'mul_div') {
+      dom.modeBadge.textContent = op === '×' ? 'การคูณแนวตั้ง' : 'การหารลงตัว';
+    } else {
+      dom.modeBadge.textContent = op === '+' ? 'การบวกแนวตั้ง' : 'การลบแนวตั้ง';
+    }
 
     updateVerticalMathDisplay();
     updateAnswerUI();
+    updateHintSidebox();
 
     // รีเซ็ตหน้าตาสไลม์กลับสู่ปกติ
     setSlimeExpression('idle');
 
-    const promptQuotes = [
-      'ลุยเลยคนเก่ง! คิดจากหลักหน่วยก่อนนะจ๊ะ ✨',
-      'สู้ๆ นะ! สไลม์เอาใจช่วย คิดให้ครบ 30 ข้อนะ 💖',
-      'คิดเลขสนุกจัง! ค่อยๆ คิด ไม่ต้องรีบนะ 🍀',
-      'ทำถูกข้อนี้รับไปเลย +1 คะแนนจ้า 🌟'
-    ];
+    let promptQuotes;
+    if (state.mathMode === 'mul_div') {
+      promptQuotes = [
+        'ท่องสูตรคูณแม่นยำ ลุยเลยน้องอุ้ม! ✨',
+        'สู้ๆ นะ! สไลม์เอาใจช่วย คิดให้ครบ 100 ข้อนะ 💖',
+        'ค่อยๆ คิดนะจ๊ะ ผลคูณผลหารไม่ยากเลย 🍀',
+        'ทำถูกข้อนี้รับไปเลย +1 คะแนนจ้า 🌟'
+      ];
+      if (op === '×') {
+        dom.feedbackMsg.textContent = 'ใส่หลักหน่วยก่อนนะ (ท่องแม่สูตรคูณได้เลย) ⬅️';
+      } else {
+        const expectedLen = ans.toString().length;
+        const firstPlace = expectedLen === 3 ? 'หลักร้อย' : (expectedLen === 2 ? 'หลักสิบ' : 'หลักหน่วย');
+        dom.feedbackMsg.textContent = `ใส่คำตอบจากซ้ายไปขวา (เริ่มที่${firstPlace}) ➡️`;
+      }
+    } else {
+      promptQuotes = [
+        'ลุยเลยคนเก่ง! คิดจากหลักหน่วยก่อนนะจ๊ะ ✨',
+        'สู้ๆ นะ! สไลม์เอาใจช่วย คิดให้ครบ 100 ข้อนะ 💖',
+        'คิดเลขสนุกจัง! ค่อยๆ คิด ไม่ต้องรีบนะ 🍀',
+        'ทำถูกข้อนี้รับไปเลย +1 คะแนนจ้า 🌟'
+      ];
+      dom.feedbackMsg.textContent = 'ใส่หลักหน่วยก่อนนะ (มีตัวทดจะลอยขึ้นมาให้เห็นเลย) ⬅️';
+    }
     setSlimeSpeech(getRandomItem(promptQuotes));
-    dom.feedbackMsg.textContent = 'ใส่หลักหน่วยก่อนนะ (มีตัวทดจะลอยขึ้นมาให้เห็นเลย) ⬅️';
     dom.feedbackMsg.className = 'feedback-msg';
+  }
+
+  // --- ระบบกล่องวิธีคิดแบบ Dropdown ใกล้ๆ โจทย์ (Math Hint Dropdown) ---
+  function updateHintVisibility() {
+    if (!dom.mathHintDropdown || !dom.toggleHintBtn) return;
+
+    if (state.mathMode === 'mul_div') {
+      dom.toggleHintBtn.style.display = 'inline-flex';
+      if (state.showHintBox) {
+        dom.mathHintDropdown.style.display = 'flex';
+        dom.toggleHintBtn.classList.add('active');
+        if (dom.hintCaret) dom.hintCaret.textContent = '▲';
+      } else {
+        dom.mathHintDropdown.style.display = 'none';
+        dom.toggleHintBtn.classList.remove('active');
+        if (dom.hintCaret) dom.hintCaret.textContent = '▼';
+      }
+    } else {
+      dom.toggleHintBtn.style.display = 'none';
+      dom.mathHintDropdown.style.display = 'none';
+      if (dom.hintCaret) dom.hintCaret.textContent = '▼';
+    }
+  }
+
+  function updateHintSidebox() {
+    updateHintVisibility();
+    if (state.mathMode !== 'mul_div' || !dom.hintStepsList) return;
+
+    const n1 = state.currentNum1;
+    const n2 = state.currentNum2;
+    const op = state.currentOp;
+    const ans = state.correctAnswer;
+
+    const steps = [];
+    let title = op === '×' ? '💡 วิธีคิดการคูณ' : '💡 วิธีคิดการหาร';
+
+    if (op === '×') {
+      if (n1 < 10 && n2 < 10) {
+        // ตัวเลขหลักเดียว คูณ หลักเดียว
+        steps.push({
+          label: `ขั้นที่ 1: ท่องสูตรคูณแม่ ${n2}`,
+          math: `${n2} × ${n1} = ${ans}`,
+          desc: `ท่องแม่ ${n2} (หรือแม่ ${n1}) จะได้คำตอบ ${ans} ทันทีจ้า`
+        });
+        if (n2 <= 5) {
+          steps.push({
+            label: 'ความหมายของการคูณ (การบวกซ้ำ)',
+            math: `${Array(n2).fill(n1).join(' + ')} = ${ans}`,
+            desc: `นำ ${n1} มาบวกกัน ${n2} ครั้ง เท่ากับ ${ans}`
+          });
+        }
+      } else {
+        // ตัวเลขหลายหลัก คูณ 1 หลัก
+        const u1 = n1 % 10;
+        const t1 = Math.floor(n1 / 10) % 10;
+        const h1 = Math.floor(n1 / 100) % 10;
+        const hasHundreds = n1 >= 100;
+
+        // 1. หลักหน่วย
+        const prodU = u1 * n2;
+        const carryT = Math.floor(prodU / 10);
+        const digitU = prodU % 10;
+        steps.push({
+          label: 'ขั้นที่ 1: คูณหลักหน่วย (ตัวหลังสุด)',
+          math: `${u1} × ${n2} = ${prodU}`,
+          desc: carryT > 0
+            ? `ใส่เลข ${digitU} ที่หลักหน่วย แล้วทด ${carryT} ไปหลักสิบ`
+            : `ใส่เลข ${digitU} ที่หลักหน่วย (ไม่มีตัวทด)`
+        });
+
+        // 2. หลักสิบ
+        const prodT = t1 * n2;
+        const totalT = prodT + carryT;
+        const carryH = hasHundreds ? Math.floor(totalT / 10) : 0;
+        const digitT = hasHundreds ? (totalT % 10) : totalT;
+
+        let descT = '';
+        let mathT = '';
+        if (carryT > 0) {
+          mathT = `(${t1} × ${n2}) + ทด ${carryT} = ${prodT} + ${carryT} = ${totalT}`;
+          descT = hasHundreds && carryH > 0
+            ? `ได้ ${totalT} ใส่เลข ${digitT} แล้วทด ${carryH} ไปหลักร้อย`
+            : `นำผลคูณ ${prodT} บวกตัวทด ${carryT} ได้ ${totalT}`;
+        } else {
+          mathT = `${t1} × ${n2} = ${prodT}`;
+          descT = hasHundreds && carryH > 0
+            ? `ได้ ${totalT} ใส่เลข ${digitT} แล้วทด ${carryH} ไปหลักร้อย`
+            : `ใส่เลข ${digitT} ในหลักสิบ`;
+        }
+        steps.push({
+          label: 'ขั้นที่ 2: คูณหลักสิบ',
+          math: mathT,
+          desc: descT
+        });
+
+        // 3. หลักร้อย (ถ้ามี)
+        if (hasHundreds) {
+          const prodH = h1 * n2;
+          const totalH = prodH + carryH;
+          let mathH = '';
+          let descH = '';
+          if (carryH > 0) {
+            mathH = `(${h1} × ${n2}) + ทด ${carryH} = ${prodH} + ${carryH} = ${totalH}`;
+            descH = `นำผลคูณ ${prodH} บวกตัวทด ${carryH} ได้ ${totalH}`;
+          } else {
+            mathH = `${h1} × ${n2} = ${prodH}`;
+            descH = `ได้ ${totalH} ใส่ในหลักร้อย`;
+          }
+          steps.push({
+            label: 'ขั้นที่ 3: คูณหลักร้อย',
+            math: mathH,
+            desc: descH
+          });
+        }
+      }
+    } else if (op === '÷') {
+      if (ans < 10) {
+        // ผลหารเป็นเลขหลักเดียว
+        steps.push({
+          label: 'ขั้นที่ 1: คิดย้อนกลับจากสูตรคูณ',
+          math: `${n2} × [ ? ] = ${n1}`,
+          desc: `คิดว่า "${n2} คูณกับอะไรแล้วได้ ${n1}?"`
+        });
+        steps.push({
+          label: `ขั้นที่ 2: ท่องสูตรคูณแม่ ${n2}`,
+          math: `${n2} × ${ans} = ${n1}`,
+          desc: `ท่องแม่ ${n2} จะพบว่า ${n2} × ${ans} = ${n1} พอดีเป๊ะ`
+        });
+      } else {
+        // ผลหาร 2 หลักขึ้นไป
+        steps.push({
+          label: 'ขั้นที่ 1: คิดย้อนกลับจากสูตรคูณ',
+          math: `${n2} × [ ? ] = ${n1}`,
+          desc: `หาว่า ${n2} คูณกับจำนวนใดแล้วได้ ${n1}`
+        });
+
+        if (n1 < 100) {
+          // ตัวตั้ง 2 หลัก เช่น 84 ÷ 4, 75 ÷ 3
+          const t = Math.floor(n1 / 10);
+          const u = n1 % 10;
+          const qT = Math.floor(t / n2);
+          const remT = t % n2;
+
+          steps.push({
+            label: 'ขั้นที่ 2: หารหลักสิบ',
+            math: `${t} ÷ ${n2} = ${qT}${remT > 0 ? ` (เหลือเศษ ${remT})` : ' ลงตัว'}`,
+            desc: remT > 0
+              ? `หลักสิบได้ ${qT} เหลือเศษ ${remT} นำไปรวมกับหลักหน่วย`
+              : `หลักสิบได้ ${qT} พอดี`
+          });
+
+          const combU = remT * 10 + u;
+          const qU = Math.floor(combU / n2);
+          steps.push({
+            label: 'ขั้นที่ 3: หารหลักหน่วย',
+            math: remT > 0 ? `รวมเศษเป็น ${combU} ÷ ${n2} = ${qU}` : `${u} ÷ ${n2} = ${qU}`,
+            desc: `หลักหน่วยได้คำตอบคือ ${qU}`
+          });
+        } else {
+          // ตัวตั้ง 3 หลัก เช่น 144 ÷ 6 หรือ 248 ÷ 2
+          const h = Math.floor(n1 / 100);
+          const t = Math.floor(n1 / 10) % 10;
+          const u = n1 % 10;
+
+          if (h < n2) {
+            // ดู 2 หลักแรก
+            const ht = h * 10 + t;
+            const qHT = Math.floor(ht / n2);
+            const remHT = ht % n2;
+            steps.push({
+              label: `ขั้นที่ 2: ดู 2 หลักแรก (${ht})`,
+              math: `${ht} ÷ ${n2} = ${qHT}${remHT > 0 ? ` (เหลือเศษ ${remHT})` : ' ลงตัว'}`,
+              desc: remHT > 0
+                ? `นำ ${ht} หารด้วย ${n2} ได้ ${qHT} เหลือเศษ ${remHT}`
+                : `นำ ${ht} หารด้วย ${n2} ได้ ${qHT} พอดี`
+            });
+
+            const combU = remHT * 10 + u;
+            const qU = Math.floor(combU / n2);
+            steps.push({
+              label: 'ขั้นที่ 3: หารหลักหน่วย',
+              math: remHT > 0 ? `รวมเศษเป็น ${combU} ÷ ${n2} = ${qU}` : `${u} ÷ ${n2} = ${qU}`,
+              desc: `นำ ${combU} หารด้วย ${n2} ได้ ${qU}`
+            });
+          } else {
+            const qH = Math.floor(h / n2);
+            const remH = h % n2;
+            steps.push({
+              label: 'ขั้นที่ 2: หารหลักร้อย',
+              math: `${h} ÷ ${n2} = ${qH}${remH > 0 ? ` (เหลือเศษ ${remH})` : ' ลงตัว'}`,
+              desc: `หลักร้อยได้ ${qH}`
+            });
+
+            const combT = remH * 10 + t;
+            const qT = Math.floor(combT / n2);
+            const remT = combT % n2;
+            steps.push({
+              label: 'ขั้นที่ 3: หารหลักสิบ',
+              math: remH > 0 ? `รวมเศษเป็น ${combT} ÷ ${n2} = ${qT}` : `${t} ÷ ${n2} = ${qT}`,
+              desc: `หลักสิบได้ ${qT}`
+            });
+
+            const combU = remT * 10 + u;
+            const qU = Math.floor(combU / n2);
+            steps.push({
+              label: 'ขั้นที่ 4: หารหลักหน่วย',
+              math: remT > 0 ? `รวมเศษเป็น ${combU} ÷ ${n2} = ${qU}` : `${u} ÷ ${n2} = ${qU}`,
+              desc: `หลักหน่วยได้คำตอบคือ ${qU}`
+            });
+          }
+        }
+
+        steps.push({
+          label: 'ตรวจคำตอบด้วยการคูณ',
+          math: `${n2} × ${ans} = ${n1}`,
+          desc: `นำตัวหาร ${n2} คูณผลหาร ${ans} ได้ ${n1} พอดีเป๊ะ!`
+        });
+      }
+    }
+
+    if (dom.hintBoxTitle) {
+      dom.hintBoxTitle.textContent = title;
+    }
+
+    let html = '';
+    steps.forEach(st => {
+      html += `
+        <div class="hint-step-item">
+          <span class="hint-step-label">${st.label}</span>
+          <div class="hint-step-math">${st.math}</div>
+          <span class="hint-step-desc">${st.desc}</span>
+        </div>
+      `;
+    });
+    html += `
+      <div class="hint-summary-badge">
+        ✨ สรุปคำตอบคือ ${ans}
+      </div>
+    `;
+
+    dom.hintStepsList.innerHTML = html;
   }
 
   // --- แสดงผลโจทย์แนวตั้ง (Vertical Math Grid) ---
@@ -438,7 +798,55 @@
     const ans = state.userAnswer;
     const len = ans.length;
 
-    // เมื่อพิมพ์จากขวาไปซ้าย:
+    // สำหรับการหาร: แสดงผลและเคอร์เซอร์จากซ้ายไปขวา (Left to Right)
+    if (state.currentOp === '÷') {
+      const expectedLen = state.correctAnswer.toString().length;
+      const allSlots = [
+        { slot: dom.ansTh, key: 'th' },
+        { slot: dom.ansH, key: 'h' },
+        { slot: dom.ansT, key: 't' },
+        { slot: dom.ansU, key: 'u' }
+      ];
+
+      // รีเซ็ตทุกช่องก่อน
+      allSlots.forEach(({ slot, key }) => {
+        if (!slot) return;
+        slot.textContent = '';
+        slot.className = `grid-cell ${key}-slot ans-slot`;
+      });
+
+      // ลิสต์ช่องคำตอบที่ต้องใช้ตามจำนวนหลักของผลหาร เรียงจากซ้ายไปขวา
+      let activeSlots = [];
+      if (expectedLen === 1) {
+        activeSlots = [{ slot: dom.ansU, key: 'u' }];
+      } else if (expectedLen === 2) {
+        activeSlots = [{ slot: dom.ansT, key: 't' }, { slot: dom.ansU, key: 'u' }];
+      } else if (expectedLen === 3) {
+        activeSlots = [{ slot: dom.ansH, key: 'h' }, { slot: dom.ansT, key: 't' }, { slot: dom.ansU, key: 'u' }];
+      } else {
+        activeSlots = allSlots;
+      }
+
+      // ใส่ตัวเลขและเคอร์เซอร์จากซ้ายไปขวา
+      activeSlots.forEach(({ slot, key }, i) => {
+        if (!slot) return;
+        if (i < len) {
+          slot.textContent = ans[i];
+          slot.className = `grid-cell ${key}-slot ans-slot has-val`;
+        } else if (i === len) {
+          slot.innerHTML = '<span class="slot-cursor">|</span>';
+          slot.className = `grid-cell ${key}-slot ans-slot active`;
+        } else {
+          slot.textContent = '';
+          slot.className = `grid-cell ${key}-slot ans-slot`;
+        }
+      });
+
+      hideAllCarries();
+      return;
+    }
+
+    // เมื่อพิมพ์จากขวาไปซ้าย (สำหรับการบวก, การลบ, การคูณ):
     // ตัวที่พิมพ์แรกสุด (หลักหน่วย) = ans[len - 1]
     // ตัวที่สอง (หลักสิบ) = ans[len - 2]
     // ตัวที่สาม (หลักร้อย) = ans[len - 3]
@@ -501,7 +909,7 @@
   function updateCarriesDisplay(len) {
     const n1 = state.currentNum1;
     const n2 = state.currentNum2;
-    const isAdd = state.currentOp === '+';
+    const op = state.currentOp;
 
     hideAllCarries();
 
@@ -513,7 +921,7 @@
     const t2 = Math.floor(n2 / 10) % 10;
     const h2 = Math.floor(n2 / 100) % 10;
 
-    if (isAdd) {
+    if (op === '+') {
       // สำหรับการบวก:
       // หลักหน่วยบวกกัน: ถ้าเกินหรือเท่ากับ 10 จะมีตัวทดไปหลักสิบ
       const sumU = u1 + u2;
@@ -553,7 +961,7 @@
         setSlimeSpeech(`มีทด ${carryToHundreds} ที่หลักร้อยต่อจ้า เก่งมาก! 🌟`);
         playCarrySound();
       }
-    } else {
+    } else if (op === '-') {
       // สำหรับการลบ: แสดงการกระจาย/การยืม (Borrowing)
       const borrowFromTens = u1 < u2 ? 1 : 0;
       if (len >= 1 && borrowFromTens > 0) {
@@ -572,49 +980,108 @@
         setSlimeSpeech('หลักหน่วยยืมหลักสิบมา 1 นะจ๊ะ สู้ๆ! 💖');
         playCarrySound();
       }
+    } else if (op === '×') {
+      // สำหรับการคูณ: คำนวณตัวทดเมื่อคูณตัวเลขหลักเดียว
+      if (n2 < 10) {
+        const prodU = u1 * n2;
+        const carryToTens = Math.floor(prodU / 10);
+        if (len >= 1 && carryToTens > 0) {
+          dom.carryT.textContent = carryToTens.toString();
+          dom.carryT.style.display = 'flex';
+        }
+
+        const prodT = t1 * n2 + carryToTens;
+        const carryToHundreds = Math.floor(prodT / 10);
+        if (len >= 2 && carryToHundreds > 0) {
+          dom.carryH.textContent = carryToHundreds.toString();
+          dom.carryH.style.display = 'flex';
+        }
+
+        if (len === 1 && carryToTens > 0) {
+          setSlimeSpeech(`คูณหลักหน่วยแล้วมีทด ${carryToTens} ที่หลักสิบนะจ๊ะ! 💖`);
+          playCarrySound();
+        }
+      }
+    } else {
+      // การหาร: ไม่แสดงตัวทด
+      hideAllCarries();
     }
   }
 
   function appendDigit(digit) {
     if (state.isProcessing) return;
 
-    // จำกัดไม่ให้ยาวเกิน 4 หลัก (เพราะผลลัพธ์ไม่เกิน 1,000)
-    if (state.userAnswer.length >= 4) return;
+    if (state.currentOp === '÷') {
+      // สำหรับการหาร: ใส่คำตอบจากซ้ายไปขวา (Left to Right)
+      const expectedLen = state.correctAnswer.toString().length;
+      if (state.userAnswer.length >= expectedLen) return;
 
-    // ใส่เลขจากขวาไปซ้าย: ตัวเลขใหม่จะถูกวางไว้ด้านหน้า (ซ้ายสุด) ของเลขเดิม
-    // ตามหลักการคำนวณเลข ป.2 (หลักหน่วย -> หลักสิบ -> หลักร้อย)
-    state.userAnswer = digit + state.userAnswer;
+      // เพิ่มตัวเลขต่อท้ายทางขวา
+      state.userAnswer = state.userAnswer + digit;
 
-    playPopSound();
-    updateAnswerUI();
+      playPopSound();
+      updateAnswerUI();
 
-    // แสดงคำแนะนำหลักถัดไปเพื่อช่วยเด็กๆ
-    const placeNames = ['หลักหน่วย', 'หลักสิบ', 'หลักร้อย', 'หลักพัน'];
-    const nextPlace = placeNames[state.userAnswer.length];
-    if (nextPlace) {
-      dom.feedbackMsg.textContent = `ใส่ ${nextPlace} ต่อทางซ้าย ⬅️ หรือกดส่งคำตอบ`;
+      // แสดงคำแนะนำหลักถัดไป
+      if (state.userAnswer.length < expectedLen) {
+        dom.feedbackMsg.textContent = 'ใส่หลักถัดไปทางขวา ➡️ หรือกดส่งคำตอบ';
+      } else {
+        dom.feedbackMsg.textContent = 'กดปุ่ม "🚀 ส่งคำตอบ" ได้เลยจ้า!';
+      }
+      dom.feedbackMsg.className = 'feedback-msg';
     } else {
-      dom.feedbackMsg.textContent = 'กดปุ่ม "🚀 ส่งคำตอบ" ได้เลยจ้า!';
+      // สำหรับการบวก, ลบ, คูณ: ใส่เลขจากขวาไปซ้าย (Right to Left: หลักหน่วย -> หลักสิบ -> หลักร้อย)
+      if (state.userAnswer.length >= 4) return;
+
+      state.userAnswer = digit + state.userAnswer;
+
+      playPopSound();
+      updateAnswerUI();
+
+      // แสดงคำแนะนำหลักถัดไปเพื่อช่วยเด็กๆ
+      const placeNames = ['หลักหน่วย', 'หลักสิบ', 'หลักร้อย', 'หลักพัน'];
+      const nextPlace = placeNames[state.userAnswer.length];
+      if (nextPlace) {
+        dom.feedbackMsg.textContent = `ใส่ ${nextPlace} ต่อทางซ้าย ⬅️ หรือกดส่งคำตอบ`;
+      } else {
+        dom.feedbackMsg.textContent = 'กดปุ่ม "🚀 ส่งคำตอบ" ได้เลยจ้า!';
+      }
+      dom.feedbackMsg.className = 'feedback-msg';
     }
-    dom.feedbackMsg.className = 'feedback-msg';
   }
 
   function backspaceDigit() {
     if (state.isProcessing) return;
     if (state.userAnswer.length > 0) {
-      // ลบตัวเลขที่เพิ่งกรอกล่าสุด (ตัวซ้ายสุด)
-      state.userAnswer = state.userAnswer.substring(1);
-      playPopSound();
-      updateAnswerUI();
+      if (state.currentOp === '÷') {
+        // สำหรับการหาร: ลบตัวเลขขวาสุดที่เพิ่งพิมพ์
+        state.userAnswer = state.userAnswer.slice(0, -1);
+        playPopSound();
+        updateAnswerUI();
 
-      if (state.userAnswer.length === 0) {
-        dom.feedbackMsg.textContent = 'ใส่หลักหน่วยก่อนนะ (มีตัวทดจะลอยขึ้นมาให้เห็นเลย) ⬅️';
+        if (state.userAnswer.length === 0) {
+          const expectedLen = state.correctAnswer.toString().length;
+          const firstPlace = expectedLen === 3 ? 'หลักร้อย' : (expectedLen === 2 ? 'หลักสิบ' : 'หลักหน่วย');
+          dom.feedbackMsg.textContent = `ใส่คำตอบจากซ้ายไปขวา (เริ่มที่${firstPlace}) ➡️`;
+        } else {
+          dom.feedbackMsg.textContent = 'ใส่หลักถัดไปทางขวา ➡️ หรือกดส่งคำตอบ';
+        }
+        dom.feedbackMsg.className = 'feedback-msg';
       } else {
-        const placeNames = ['หลักหน่วย', 'หลักสิบ', 'หลักร้อย', 'หลักพัน'];
-        const nextPlace = placeNames[state.userAnswer.length];
-        dom.feedbackMsg.textContent = `ใส่ ${nextPlace} ต่อทางซ้าย ⬅️ หรือกดส่งคำตอบ`;
+        // สำหรับการบวก, ลบ, คูณ: ลบตัวเลขที่เพิ่งกรอกล่าสุด (ตัวซ้ายสุด)
+        state.userAnswer = state.userAnswer.substring(1);
+        playPopSound();
+        updateAnswerUI();
+
+        if (state.userAnswer.length === 0) {
+          dom.feedbackMsg.textContent = 'ใส่หลักหน่วยก่อนนะ (มีตัวทดจะลอยขึ้นมาให้เห็นเลย) ⬅️';
+        } else {
+          const placeNames = ['หลักหน่วย', 'หลักสิบ', 'หลักร้อย', 'หลักพัน'];
+          const nextPlace = placeNames[state.userAnswer.length];
+          dom.feedbackMsg.textContent = `ใส่ ${nextPlace} ต่อทางซ้าย ⬅️ หรือกดส่งคำตอบ`;
+        }
+        dom.feedbackMsg.className = 'feedback-msg';
       }
-      dom.feedbackMsg.className = 'feedback-msg';
     }
   }
 
@@ -623,7 +1090,13 @@
     state.userAnswer = '';
     playPopSound();
     updateAnswerUI();
-    dom.feedbackMsg.textContent = 'ล้างคำตอบแล้ว เริ่มกรอกใหม่จากหลักหน่วยได้เลยจ้า ⬅️';
+    if (state.currentOp === '÷') {
+      const expectedLen = state.correctAnswer.toString().length;
+      const firstPlace = expectedLen === 3 ? 'หลักร้อย' : (expectedLen === 2 ? 'หลักสิบ' : 'หลักหน่วย');
+      dom.feedbackMsg.textContent = `ล้างคำตอบแล้ว เริ่มกรอกใหม่จากซ้ายไปขวา (${firstPlace}) ➡️`;
+    } else {
+      dom.feedbackMsg.textContent = 'ล้างคำตอบแล้ว เริ่มกรอกใหม่จากหลักหน่วยได้เลยจ้า ⬅️';
+    }
     dom.feedbackMsg.className = 'feedback-msg';
   }
 
@@ -647,12 +1120,12 @@
     }
   }
 
-  // เมื่อตอบถูก: ปรับคะแนนเป็นข้อละ 1 คะแนน + ตรวจสอบเป้าหมายครบ 30 ข้อ
+  // เมื่อตอบถูก: ปรับคะแนนเป็นข้อละ 1 คะแนน + ตรวจสอบเป้าหมายครบ 100 ข้อ
   function handleCorrectAnswer() {
     state.isProcessing = true;
     state.combo += 1;
 
-    // ปรับคะแนนเป็นข้อละ 1 คะแนน และนับสะสมจำนวนข้อที่คิดถูก (เป้าหมาย 30 ข้อ)
+    // ปรับคะแนนเป็นข้อละ 1 คะแนน และนับสะสมจำนวนข้อที่คิดถูก (เป้าหมาย 100 ข้อ)
     const earnedScore = 1;
     state.score = Math.round(state.score + earnedScore);
     state.correctCount += 1;
@@ -695,13 +1168,14 @@
     dom.answerDisplay.classList.remove('wrong-shake');
     dom.answerDisplay.classList.add('correct-glow');
 
-    // ตรวจสอบรางวัลครบ 30 ข้อ (ขอให้ยายพาไปซื้อขนม)
+    // ตรวจสอบรางวัลครบ 100 ข้อ (ขอให้ยายพาไปซื้อขนม)
     let isRewardTriggered = false;
     if (state.correctCount >= TARGET_QUESTIONS && !state.hasCelebratedTarget) {
       state.hasCelebratedTarget = true;
       isRewardTriggered = true;
       try {
         localStorage.setItem('slime_math_celebrated_target', 'true');
+        localStorage.setItem('slime_math_celebrated_100', 'true');
       } catch (e) {}
     }
 
@@ -710,13 +1184,13 @@
       'ว้าววว! ถูกต้องนะจ๊ะน้องอุ้ม! 🎉',
       'ยอดเยี่ยมมากเลย น้องอุ้มคนเก่ง! ⭐',
       'สุดยอด! น้องอุ้มเก่งที่สุดเลย! 💖',
-      'เก่งจังเลย! สะสมให้ครบ 30 ข้อไปขอให้ยายพาไปซื้อขนมนะ! 🍦'
+      'เก่งจังเลย! สะสมให้ครบ 100 ข้อไปขอให้ยายพาไปซื้อขนมนะ! 🍦'
     ];
     setSlimeSpeech(getRandomItem(cheerMsgs));
     dom.feedbackMsg.textContent = `ถูกต้อง! +1 คะแนน ${state.combo > 1 ? `(คอมโบ x${state.combo}!)` : ''} 🌟`;
     dom.feedbackMsg.className = 'feedback-msg correct';
 
-    // ถ้าทำถูกครบ 30 ข้อ ให้เด้งแจ้งเตือนรางวัล
+    // ถ้าทำถูกครบ 100 ข้อ ให้เด้งแจ้งเตือนรางวัล
     if (isRewardTriggered) {
       setTimeout(() => {
         triggerTargetCelebration();
@@ -847,7 +1321,7 @@
   }
 
   // =========================================================
-  // ระบบเป้าหมาย 30 ข้อ & แจ้งเตือนรางวัล (ยายพาซื้อขนม)
+  // ระบบเป้าหมาย 100 ข้อ & แจ้งเตือนรางวัล (ยายพาซื้อขนม)
   // =========================================================
 
   function updateTargetProgress() {
@@ -878,7 +1352,7 @@
       playCelebrationFanfare();
       setSlimeExpression('happy');
       createParticles();
-      setSlimeSpeech('ไชโยยย! คิดถูกครบ 30 ข้อแล้วจ้า! รีบชวนคุณยายไปซื้อขนมเลยยย! 🍦🎉');
+      setSlimeSpeech('ไชโยยย! คิดถูกครบ 100 ข้อแล้วจ้า! รีบชวนคุณยายไปซื้อขนมเลยยย! 🍦🎉');
     } else {
       playPopSound();
       const remaining = TARGET_QUESTIONS - state.correctCount;
@@ -903,7 +1377,7 @@
 
     if (dom.rewardBadge) {
       dom.rewardBadge.textContent = isCompleted
-        ? '🏆 ภารกิจสำเร็จ! ครบ 30 ข้อ 🏆'
+        ? '🏆 ภารกิจสำเร็จ! ครบ 100 ข้อ 🏆'
         : `🎯 เป้าหมาย: สะสมให้ครบ ${TARGET_QUESTIONS} ข้อ 🎯`;
     }
 
@@ -915,7 +1389,7 @@
 
     if (dom.rewardSubtitle) {
       dom.rewardSubtitle.textContent = isCompleted
-        ? 'สุดยอดคนเก่ง! น้องอุ้มคิดเลขถูกต้องครบ 30 ข้อแล้วนะจ๊ะ'
+        ? 'สุดยอดคนเก่ง! น้องอุ้มคิดเลขถูกต้องครบ 100 ข้อแล้วนะจ๊ะ'
         : `น้องอุ้มคิดถูกแล้ว ${state.correctCount}/${TARGET_QUESTIONS} ข้อ (อีก ${remaining} ข้อเท่านั้นจ้า สู้ๆ! 💪✨)`;
     }
 
@@ -927,8 +1401,8 @@
 
     if (dom.rewardSpeechQuote) {
       dom.rewardSpeechQuote.innerHTML = isCompleted
-        ? '"ยายจ๋า... น้องอุ้มคิดเลขครบ 30 ข้อแล้ว<br><b>พาหนูไปซื้อขนมหน่อยนะคะ! 🍨🧁</b>"'
-        : `"คิดเลขถูกสะสมครบ 30 ข้อเมื่อไหร่...<br><b>คุณยายจะพาไปซื้อขนมอร่อยๆ ทันทีเลย! 🍨🧁</b>"`;
+        ? '"ยายจ๋า... น้องอุ้มคิดเลขครบ 100 ข้อแล้ว<br><b>พาหนูไปซื้อขนมหน่อยนะคะ! 🍨🧁</b>"'
+        : `"คิดเลขถูกสะสมครบ 100 ข้อเมื่อไหร่...<br><b>คุณยายจะพาไปซื้อขนมอร่อยๆ ทันทีเลย! 🍨🧁</b>"`;
     }
 
     if (dom.closeRewardBtnText) {
@@ -1028,7 +1502,7 @@
       setSlimeSpeech('รีเซ็ตคะแนนและแต้มสูงสุดเป็น 0 แล้วจ้า! มาเริ่มสะสมใหม่กันนะ 🌟');
       dom.feedbackMsg.textContent = 'รีเซ็ตคะแนนทั้งหมดรวมแต้มสูงสุด และเริ่มข้อที่ 1 ใหม่เรียบร้อยแล้ว!';
     } else {
-      setSlimeSpeech('รีเซ็ตเริ่มต้นข้อ 1 ใหม่แล้วจ้า! มาสะสมให้ครบ 30 ข้อกันนะ สู้ๆ! 🌟');
+      setSlimeSpeech('รีเซ็ตเริ่มต้นข้อ 1 ใหม่แล้วจ้า! มาสะสมให้ครบ 100 ข้อกันนะ สู้ๆ! 🌟');
       dom.feedbackMsg.textContent = 'รีเซ็ตคะแนนและเริ่มข้อที่ 1 ใหม่เรียบร้อยแล้ว!';
     }
     dom.feedbackMsg.className = 'feedback-msg';
@@ -1064,8 +1538,8 @@
       playPopSound();
       setSlimeSpeech(getRandomItem([
         'ดึ๋งๆ! สไลม์คู่ใจของน้องอุ้มมาแล้วจ้า 💖',
-        'มาคิดเลขสะสมให้ครบ 30 ข้อ ให้ยายพาไปซื้อขนมกันนะน้องอุ้ม! 🍦',
-        'ข้าคือราชาสไลม์ใจดี ขอให้น้องอุ้มทำถูกครบ 30 ข้อไวๆ นะ 👑'
+        'มาคิดเลขสะสมให้ครบ 100 ข้อ ให้ยายพาไปซื้อขนมกันนะน้องอุ้ม! 🍦',
+        'ข้าคือราชาสไลม์ใจดี ขอให้น้องอุ้มทำถูกครบ 100 ข้อไวๆ นะ 👑'
       ]));
     });
 
@@ -1097,6 +1571,31 @@
         setSlimeExpression('happy');
         setSlimeSpeech('สลับตัวตั้งกับตัวบวกแล้วจ้า! ผลลัพธ์เท่าเดิมนะ 💖');
         dom.feedbackMsg.textContent = 'สลับตัวเลขบน-ล่างแล้ว คิดจากหลักหน่วยก่อนนะ ⬅️';
+      } else if (state.currentOp === '×') {
+        const temp = state.currentNum1;
+        state.currentNum1 = state.currentNum2;
+        state.currentNum2 = temp;
+        state.correctAnswer = state.currentNum1 * state.currentNum2;
+        state.userAnswer = '';
+        updateVerticalMathDisplay();
+        updateAnswerUI();
+        setSlimeExpression('happy');
+        setSlimeSpeech('สลับตัวตั้งกับตัวคูณแล้วจ้า! ผลลัพธ์เท่าเดิมนะ 💖');
+        dom.feedbackMsg.textContent = 'สลับตัวเลขบน-ล่างแล้ว ท่องสูตรคูณได้เลยจ้า 🌟';
+      } else if (state.currentOp === '÷') {
+        // สำหรับการหาร: สลับตัวตั้งกับตัวหาร และเปลี่ยนเป็นโจทย์คูณ
+        const temp = state.currentNum1;
+        state.currentNum1 = state.currentNum2;
+        state.currentNum2 = temp;
+        state.currentOp = '×';
+        state.correctAnswer = state.currentNum1 * state.currentNum2;
+        state.userAnswer = '';
+        dom.modeBadge.textContent = 'การคูณแนวตั้ง';
+        updateVerticalMathDisplay();
+        updateAnswerUI();
+        setSlimeExpression('happy');
+        setSlimeSpeech('การหารสลับที่ไม่ได้จ้า ข้าเปลี่ยนเป็นโจทย์คูณให้แทนนะ! 🌟');
+        dom.feedbackMsg.textContent = 'สลับตัวเลขและเปลี่ยนเป็นโจทย์คูณให้แล้วนะ ⬅️';
       } else {
         // สำหรับการลบ: สลับตัวตั้งกับตัวลบ และเปลี่ยนเป็นโจทย์บวก (เพื่อไม่ให้ผลลัพธ์ติดลบ)
         const temp = state.currentNum1;
@@ -1112,11 +1611,76 @@
         setSlimeSpeech('การลบสลับที่ไม่ได้จ้า ข้าเปลี่ยนเป็นโจทย์บวกให้แทนนะ! 🌟');
         dom.feedbackMsg.textContent = 'สลับตัวเลขและเปลี่ยนเป็นโจทย์บวกให้แล้วนะ ⬅️';
       }
+
+      updateHintSidebox();
     }
 
     // ปุ่มสลับเลขบน-ล่าง
     if (dom.swapNumbersBtn) {
       dom.swapNumbersBtn.addEventListener('click', swapNumbers);
+    }
+
+    // ปุ่มเปิด/ปิด กล่องวิธีคิดข้างๆ
+    if (dom.toggleHintBtn) {
+      dom.toggleHintBtn.addEventListener('click', () => {
+        initAudio();
+        playPopSound();
+        state.showHintBox = !state.showHintBox;
+        updateHintVisibility();
+      });
+    }
+
+    // ปุ่มกากบาทปิดกล่องวิธีคิด
+    if (dom.closeHintBoxBtn) {
+      dom.closeHintBoxBtn.addEventListener('click', () => {
+        initAudio();
+        playPopSound();
+        state.showHintBox = false;
+        updateHintVisibility();
+      });
+    }
+
+    // ปิด Dropdown วิธีคิดเมื่อคลิกพื้นที่อื่นภายนอก
+    document.addEventListener('click', (e) => {
+      if (state.showHintBox && dom.mathHintDropdown && dom.toggleHintBtn) {
+        if (!dom.mathHintDropdown.contains(e.target) && !dom.toggleHintBtn.contains(e.target)) {
+          state.showHintBox = false;
+          updateHintVisibility();
+        }
+      }
+    });
+
+    // ปุ่มเลือกหมวดหมู่ที่หน้าแรก (ตามที่วาด: 1. บวกและลบ  2. คูณและหาร)
+    if (dom.chooseAddSubBtn) {
+      dom.chooseAddSubBtn.addEventListener('click', () => {
+        startMathMode('add_sub');
+      });
+    }
+
+    if (dom.chooseMulDivBtn) {
+      dom.chooseMulDivBtn.addEventListener('click', () => {
+        startMathMode('mul_div');
+      });
+    }
+
+    // ปุ่มกลับหน้าแรกจากแถบหัวเรื่อง
+    if (dom.homeNavBtn) {
+      dom.homeNavBtn.addEventListener('click', showHomeScreen);
+    }
+
+    // แตะน้องสไลม์ที่หน้าแรก
+    if (dom.homeSlimeAvatar) {
+      dom.homeSlimeAvatar.addEventListener('click', () => {
+        initAudio();
+        playPopSound();
+        if (dom.homeSpeechBubble) {
+          dom.homeSpeechBubble.textContent = getRandomItem([
+            'ดึ๋งๆ! น้องอุ้มอยากฝึก "บวก/ลบ" หรือ "คูณ/หาร" กดเลือกได้เลยจ้า 💖',
+            'สไลม์พร้อมแล้ว! วันนี้มาฝึกคิดเลขให้เก่งที่สุดในโลกกันนะ 👑',
+            'ครบ 100 ข้อเมื่อไหร่ คุณยายพาไปซื้อขนมแสนอร่อยแน่นอน! 🍦🍨'
+          ]);
+        }
+      });
     }
 
     // ปุ่มเปลี่ยนโจทย์ข้อใหม่
@@ -1226,7 +1790,7 @@
       });
     }
 
-    // จัดการป๊อปอัปภาพรางวัลใหญ่ 30 ข้อ (ขยายเมื่อคลิกที่การ์ดเป้าหมาย)
+    // จัดการป๊อปอัปภาพรางวัลใหญ่ 100 ข้อ (ขยายเมื่อคลิกที่การ์ดเป้าหมาย)
     if (dom.targetStatCard) {
       dom.targetStatCard.addEventListener('click', () => {
         openRewardModal(true);
@@ -1287,7 +1851,7 @@
       console.warn('Load current score error', e);
     }
 
-    // โหลดจำนวนข้อที่ตอบถูกสะสม (เป้าหมาย 30 ข้อ)
+    // โหลดจำนวนข้อที่ตอบถูกสะสม (เป้าหมาย 100 ข้อ)
     try {
       const savedCount = localStorage.getItem('slime_math_correct_count');
       if (savedCount !== null) {
@@ -1301,11 +1865,13 @@
       state.correctCount = 0;
     }
 
-    // โหลดสถานะการแจ้งเตือนรางวัล 30 ข้อ
+    // โหลดสถานะการแจ้งเตือนรางวัล 100 ข้อ
     try {
-      const savedCelebrated = localStorage.getItem('slime_math_celebrated_target') || localStorage.getItem('slime_math_celebrated_100');
-      if (savedCelebrated === 'true') {
+      const savedCelebrated = localStorage.getItem('slime_math_celebrated_100');
+      if (savedCelebrated === 'true' && state.correctCount >= TARGET_QUESTIONS) {
         state.hasCelebratedTarget = true;
+      } else {
+        state.hasCelebratedTarget = false;
       }
     } catch (e) {
       console.warn('Load celebration flag error', e);
@@ -1329,11 +1895,26 @@
       console.warn('Load SFX volume error', e);
     }
 
+    // โหลดโหมดที่เลือกไว้ล่าสุด
+    try {
+      const savedMode = localStorage.getItem('slime_math_selected_mode');
+      if (savedMode === 'mul_div' || savedMode === 'add_sub') {
+        state.mathMode = savedMode;
+      }
+    } catch (e) {}
+
+    if (dom.currentModeTag) {
+      dom.currentModeTag.textContent = state.mathMode === 'add_sub' ? 'การบวกและการลบ' : 'การคูณและการหาร';
+    }
+
     updateVolumeUI();
 
     updateTargetProgress();
     setupEventListeners();
     generateMathProblem();
+
+    // แสดงหน้าแรก (Home Screen) ตั้งแต่เปิดเว็บ
+    showHomeScreen();
   }
 
   if (document.readyState === 'loading') {

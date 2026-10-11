@@ -1,7 +1,7 @@
 /**
  * Service Worker สำหรับเล่นแบบ Offline บน iPad และอุปกรณ์พกพา
  */
-const CACHE_NAME = 'slime-math-v22';
+const CACHE_NAME = 'slime-math-v32';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

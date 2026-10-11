@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>อาณาจักรของน้องอุ้ม - คณิตคิดไว</title>
+  <meta name="author" content="KHUNAUN">
   <!-- iOS / iPad Web App Configuration (ติดตั้งลง iPad เป็นแอปเต็มจอได้ทันที) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -35,28 +36,130 @@
 
   <!-- คอนเทนเนอร์หลัก: จบในหน้าเดียว 100% ไม่ต้องเลื่อนจอ -->
   <div class="game-container">
-    <!-- แถบหัวเรื่องด้านบนสุด -->
-    <header class="game-header-top">
-      <div class="title-badge">
-        <span class="crown-icon">👑</span>
-        <h1 class="game-title">อาณาจักรของน้องอุ้ม</h1>
-        <span class="grade-tag">คณิตคิดไว</span>
-      </div>
+    <!-- =========================================================
+         หน้าแรก (Home Screen): เลือกหมวดหมู่การคิดเลข
+         ตามภาพวาด: 1. การบวกและการลบ  2. การคูณและการหาร
+         ========================================================= -->
+    <div id="homeScreen" class="home-screen-wrapper">
+      <div class="home-card-inner">
+        <!-- หัวเรื่องหน้าแรก: เอา คณิตคิดสนุก ไว้ด้านบน -->
+        <div class="home-header-badge">
+          <span class="home-sparkle-tag">✨ คณิตคิดสนุก ✨</span>
+          <div class="home-title-row">
+            <span class="crown-icon">👑</span>
+            <h1 class="home-title">อาณาจักรของน้องอุ้ม</h1>
+          </div>
+        </div>
 
-      <!-- เลือกระดับความยาก (เรียงจากมากไปน้อย: 1,000 -> 500 -> 100) -->
-      <div class="level-selector">
-        <button class="level-tab active" data-max="1000" data-name="ท้าทาย">
-          🌟 ไม่เกิน 1,000
-        </button>
-        <button class="level-tab" data-max="500" data-name="ปานกลาง">
-          ⚔️ ไม่เกิน 500
-        </button>
-        <button class="level-tab" data-max="100" data-name="ง่าย">
-          🌱 ไม่เกิน 100
-        </button>
-      </div>
+        <!-- น้องสไลม์ต้อนรับที่หน้าแรก -->
+        <div class="home-mascot-row">
+          <div class="home-slime-avatar" id="homeSlimeAvatar" title="แตะเล่นกับน้องสไลม์ 💖">
+            <svg viewBox="0 0 200 170" width="115" height="98" class="home-slime-svg" aria-label="น้องสไลม์คู่ใจ">
+              <defs>
+                <linearGradient id="homeSlimeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#72f790" />
+                  <stop offset="65%" stop-color="#2ecc71" />
+                  <stop offset="100%" stop-color="#1b9e52" />
+                </linearGradient>
+                <linearGradient id="homeHighlightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <ellipse cx="100" cy="155" rx="72" ry="14" class="slime-shadow" />
+              <path class="slime-body" d="M100,20 C145,20 180,60 178,110 C175,145 150,152 100,152 C50,152 25,145 22,110 C20,60 55,20 100,20 Z" fill="url(#homeSlimeGrad)" />
+              <ellipse cx="65" cy="50" rx="20" ry="12" transform="rotate(-25 65 50)" fill="url(#homeHighlightGrad)" />
+              <circle cx="50" cy="70" r="5" fill="#ffffff" opacity="0.6" />
+              <ellipse cx="56" cy="110" rx="10" ry="6" fill="#ff7675" opacity="0.6" />
+              <ellipse cx="144" cy="110" rx="10" ry="6" fill="#ff7675" opacity="0.6" />
+              <g class="slime-eyes">
+                <ellipse cx="70" cy="90" rx="11" ry="15" fill="#2c3e50" />
+                <circle cx="66" cy="84" r="5" fill="#ffffff" />
+                <ellipse cx="130" cy="90" rx="11" ry="15" fill="#2c3e50" />
+                <circle cx="126" cy="84" r="5" fill="#ffffff" />
+              </g>
+              <path class="slime-mouth" d="M92,118 Q100,132 108,118" stroke="#2c3e50" stroke-width="4" fill="none" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="home-speech-bubble" id="homeSpeechBubble">
+            "ยินดีต้อนรับจ้าน้องอุ้ม! วันนี้อยากฝึกคิดเลขเรื่องไหนดีเอ่ย? 💖"
+          </div>
+        </div>
 
-    </header>
+        <p class="home-instruction-text">แตะเลือกหัวข้อที่ต้องการฝึกฝนได้เลยจ้า 👇</p>
+
+        <!-- 2 ปุ่มแคปซูลขนาดใหญ่ ตามภาพวาดเป๊ะๆ -->
+        <div class="home-capsules-group">
+          <!-- 1. การบวกและการลบ -->
+          <button type="button" class="mode-capsule-btn btn-add-sub" id="chooseAddSubBtn" aria-label="เลือกหัวข้อ การบวกและการลบ">
+            <div class="capsule-icon-wrap">
+              <span class="capsule-icon">➕➖</span>
+            </div>
+            <div class="capsule-text-col">
+              <span class="capsule-title">การบวกและการลบ</span>
+              <span class="capsule-subtitle">โจทย์แนวตั้ง มีตัวทด/กระจาย ไม่เกิน 1,000</span>
+            </div>
+            <div class="capsule-action-badge">
+              <span>เริ่มเลย</span>
+              <span class="capsule-arrow">➔</span>
+            </div>
+          </button>
+
+          <!-- 2. การคูณและการหาร -->
+          <button type="button" class="mode-capsule-btn btn-mul-div" id="chooseMulDivBtn" aria-label="เลือกหัวข้อ การคูณและการหาร">
+            <div class="capsule-icon-wrap">
+              <span class="capsule-icon">✖️➗</span>
+            </div>
+            <div class="capsule-text-col">
+              <span class="capsule-title">การคูณและการหาร</span>
+              <span class="capsule-subtitle">ฝึกสูตรคูณและการหารลงตัว คิดสนุก แม่นยำ</span>
+            </div>
+            <div class="capsule-action-badge">
+              <span>เริ่มเลย</span>
+              <span class="capsule-arrow">➔</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- แถบข้อมูลเป้าหมายด้านล่าง -->
+        <div class="home-footer-badge">
+          <span class="footer-target-icon">🍦</span>
+          <span class="footer-target-text">เป้าหมาย: สะสมคิดเลขถูกครบ 100 ข้อ ขอให้ยายพาไปซื้อขนม! 👵✨</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         หน้าเล่นเกม (Game Screen): กระดานคิดเลขแนวตั้ง
+         ========================================================= -->
+    <div id="gameScreen" class="game-screen-wrapper" style="display: none;">
+      <!-- แถบหัวเรื่องด้านบนสุด -->
+      <header class="game-header-top">
+        <div class="header-left-cluster">
+          <button type="button" id="homeNavBtn" class="home-nav-btn" title="กลับหน้าแรกเลือกหัวข้อ">
+            <span class="nav-btn-icon">🏠</span> หน้าแรก
+          </button>
+          <div class="title-badge">
+            <span class="crown-icon">👑</span>
+            <h1 class="game-title">อาณาจักรของน้องอุ้ม</h1>
+            <span class="grade-tag" id="currentModeTag">การบวกและการลบ</span>
+          </div>
+        </div>
+
+        <!-- เลือกระดับความยาก (เรียงจากมากไปน้อย: 1,000 -> 500 -> 100) -->
+        <div class="level-selector">
+          <button class="level-tab active" data-max="1000" data-name="ท้าทาย">
+            🌟 ไม่เกิน 1,000
+          </button>
+          <button class="level-tab" data-max="500" data-name="ปานกลาง">
+            ⚔️ ไม่เกิน 500
+          </button>
+          <button class="level-tab" data-max="100" data-name="ง่าย">
+            🌱 ไม่เกิน 100
+          </button>
+        </div>
+
+      </header>
 
     <!-- พื้นที่หลักแบบสมมาตร: เสาสถิติซ้าย | โจทย์แนวตั้ง | แป้นพิมพ์ | เสาสถิติขวา -->
     <div class="game-main-split">
@@ -85,8 +188,24 @@
             <span class="question-number-badge" id="questionBadge">ข้อที่ 1</span>
             <span class="mode-badge" id="modeBadge">บวกและลบ</span>
           </div>
-          <!-- ปุ่มเปลี่ยนโจทย์ & ปุ่มสลับเลข -->
+          <!-- ปุ่มเปลี่ยนโจทย์ & ปุ่มสลับเลข & ปุ่มวิธีคิด (Dropdown) -->
           <div class="math-action-buttons">
+            <!-- Dropdown วิธีคิด อยู่ใกล้ๆ โจทย์ ลอยลงมาโดยไม่ขยับตำแหน่งโจทย์ -->
+            <div class="hint-dropdown-wrapper">
+              <button type="button" id="toggleHintBtn" class="pill-btn hint-btn" style="display: none;" title="เปิด/ปิด วิธีคิด (Dropdown)">
+                <span class="btn-icon">💡</span> วิธีคิด <span class="dropdown-caret" id="hintCaret">▼</span>
+              </button>
+              <!-- กล่องวิธีคิดแบบ Dropdown ลอยลงมาใกล้ๆ โจทย์ -->
+              <div class="math-hint-dropdown" id="mathHintDropdown" style="display: none;" aria-label="วิธีคิดและการหาคำตอบ">
+                <div class="hint-dropdown-header">
+                  <span class="hint-header-title" id="hintBoxTitle">💡 วิธีคิดหาคำตอบ</span>
+                  <button type="button" class="hint-close-btn" id="closeHintBoxBtn" title="ปิดกล่องวิธีคิด">✕</button>
+                </div>
+                <div class="hint-steps-list" id="hintStepsList">
+                  <!-- รายการขั้นตอนจะถูกสร้างโดย updateHintSidebox() -->
+                </div>
+              </div>
+            </div>
             <button type="button" id="changeQuestionBtn" class="pill-btn change-btn" title="เปลี่ยนโจทย์ข้อใหม่">
               <span class="btn-icon">🔄</span> เปลี่ยนโจทย์
             </button>
@@ -96,7 +215,7 @@
           </div>
         </div>
 
-        <!-- กล่องโจทย์แนวตั้ง อยู่กึ่งกลาง สมมาตร 100% ตัวเลขสูงขึ้น เด่นชัด -->
+        <!-- กล่องโจทย์แนวตั้ง อยู่กึ่งกลาง สมมาตร 100% ตัวเลขสูงขึ้น เด่นชัด (อยู่ที่เดิม 100%) -->
         <div class="math-board-wrapper">
           <!-- ตารางโจทย์คณิตศาสตร์แนวตั้ง (Vertical Math Grid) กึ่งกลางสมมาตร -->
           <div class="vertical-math-grid" id="verticalMathGrid">
@@ -279,13 +398,13 @@
         </div>
       </section>
 
-      <!-- เสาสถิติฝั่งขวา: เป้าหมาย 30 ข้อ, สูงสุด และ ปุ่มเครื่องมือ (Symmetrical Right Sidebar) -->
+      <!-- เสาสถิติฝั่งขวา: เป้าหมาย 100 ข้อ, สูงสุด และ ปุ่มเครื่องมือ (Symmetrical Right Sidebar) -->
       <aside class="side-stats-column right-side-stats" aria-label="แถบสถิติด้านขวา">
-        <!-- การ์ดเป้าหมาย 30 ข้อ (ขอให้ยายพาไปซื้อขนม) -->
-        <div class="stat-card side-card target-card" id="targetStatCard" title="คลิกเพื่อขยายดูภาพรางวัลใหญ่ 👵🍭" aria-label="เป้าหมาย 30 ข้อ: คลิกเพื่อดูภาพรางวัลใหญ่">
+        <!-- การ์ดเป้าหมาย 100 ข้อ (ขอให้ยายพาไปซื้อขนม) -->
+        <div class="stat-card side-card target-card" id="targetStatCard" title="คลิกเพื่อขยายดูภาพรางวัลใหญ่ 👵🍭" aria-label="เป้าหมาย 100 ข้อ: คลิกเพื่อดูภาพรางวัลใหญ่">
           <span class="side-card-icon target-bounce">🎯</span>
           <span class="side-card-label">เป้าหมาย</span>
-          <span id="targetProgressText" class="side-card-val">0/30</span>
+          <span id="targetProgressText" class="side-card-val">0/100</span>
           <div class="target-progress-track">
             <div id="targetProgressFill" class="target-progress-fill" style="width: 0%;"></div>
           </div>
@@ -316,28 +435,35 @@
         </div>
       </aside>
     </div>
+    <!-- ปิด #gameScreen -->
+    </div>
   </div>
 
+  <!-- แถบระบุคนออกแบบ ด้านล่างกลางจอ ตัวอักษรสีขาว ไม่ทับหน้าต่างใดๆ -->
+  <footer class="app-global-footer" aria-label="ผู้พัฒนาและออกแบบ">
+    Design By KHUNAUN
+  </footer>
+
   <!-- =========================================================
-       Modal: แจ้งเตือนรางวัลครบ 30 ข้อ (ขอให้ยายพาไปซื้อขนม)
+       Modal: แจ้งเตือนรางวัลครบ 100 ข้อ (ขอให้ยายพาไปซื้อขนม)
        ========================================================= -->
   <div id="rewardModal" class="reward-overlay" style="display: none;" aria-hidden="true">
     <div class="reward-card" role="dialog" aria-modal="true" aria-labelledby="rewardTitle">
       <button type="button" class="reward-card-close-x" id="rewardCardCloseX" title="ปิดหน้าต่าง">✕</button>
       <div class="reward-sparkles">✨ 🌟 💖 🌟 ✨</div>
-      <div class="reward-badge" id="rewardBadge">🏆 ภารกิจสำเร็จ! ครบ 30 ข้อ 🏆</div>
+      <div class="reward-badge" id="rewardBadge">🏆 ภารกิจสำเร็จ! ครบ 100 ข้อ 🏆</div>
       <div class="grandma-hero">
         <span class="hero-grandma">👵</span>
         <span class="hero-heart">❤️</span>
         <span class="hero-treats">🍦🍭🍫</span>
       </div>
       <h2 id="rewardTitle" class="reward-title">ขอให้ยายพาไปซื้อขนมได้เลย! 🎉</h2>
-      <p id="rewardSubtitle" class="reward-subtitle">สุดยอดคนเก่ง! น้องอุ้มคิดเลขถูกต้องครบ 30 ข้อแล้วนะจ๊ะ</p>
+      <p id="rewardSubtitle" class="reward-subtitle">สุดยอดคนเก่ง! น้องอุ้มคิดเลขถูกต้องครบ 100 ข้อแล้วนะจ๊ะ</p>
       
       <div class="reward-speech-box">
         <div class="speech-intro" id="rewardSpeechIntro">📢 ยื่นหน้านี้ให้คุณยายดูได้เลยนะคนเก่ง:</div>
         <div class="speech-quote" id="rewardSpeechQuote">
-          "ยายจ๋า... น้องอุ้มคิดเลขครบ 30 ข้อแล้ว<br>
+          "ยายจ๋า... น้องอุ้มคิดเลขครบ 100 ข้อแล้ว<br>
           <b>พาหนูไปซื้อขนมหน่อยนะคะ! 🍨🧁</b>"
         </div>
       </div>

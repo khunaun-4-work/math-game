@@ -65,7 +65,8 @@ body {
   color: var(--text-main);
   position: relative;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   padding: env(safe-area-inset-top, 6px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
   -webkit-touch-callout: none;
@@ -122,8 +123,8 @@ body {
 .game-container {
   width: 100%;
   max-width: 1140px;
-  height: 100%;
-  max-height: 100dvh;
+  flex: 1;
+  min-height: 0;
   position: relative;
   z-index: 1;
   display: flex;
@@ -312,6 +313,43 @@ body {
   color: #d35400;
 }
 
+/* =========================================================
+   กล่องวิธีคิดแบบ Dropdown ใกล้ๆ โจทย์ (Math Hint Dropdown)
+   ========================================================= */
+.hint-dropdown-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.hint-btn {
+  background: #fef9c3;
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+.hint-btn:hover {
+  background: #fef08a;
+  border-color: #d97706;
+}
+
+.hint-btn.active {
+  background: #fde047;
+  border-color: #d97706;
+  color: #78350f;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+}
+
+.dropdown-caret {
+  font-size: 0.62rem;
+  margin-left: 2px;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.hint-btn.active .dropdown-caret {
+  transform: rotate(180deg);
+}
+
 .slime-speech {
   flex: 1;
   background: #ffffff;
@@ -328,7 +366,7 @@ body {
   text-align: center;
 }
 
-/* คอนเทนเนอร์บอร์ดโจทย์ กึ่งกลางสมมาตร 100% พร้อมยกสูงขึ้น */
+/* คอนเทนเนอร์บอร์ดโจทย์ กึ่งกลางสมมาตร 100% พร้อมยกสูงขึ้น (อยู่ที่เดิม 100%) */
 .math-board-wrapper {
   flex: 1;
   display: flex;
@@ -337,6 +375,153 @@ body {
   width: 100%;
   margin: 4px 0 8px 0;
   min-height: 0;
+}
+
+/* กล่องวิธีคิดแบบ Dropdown ลอยลงมาใกล้ๆ โจทย์โดยไม่ขยับตำแหน่งโจทย์ */
+.math-hint-dropdown {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  width: 285px;
+  max-width: calc(100vw - 36px);
+  background: #ffffff;
+  border-radius: 18px;
+  border: 2.5px solid #fed7aa;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.16), 0 4px 14px rgba(245, 158, 11, 0.18);
+  padding: 10px 12px;
+  gap: 7px;
+  z-index: 100;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  animation: hintDropdownPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ติ่งลูกศรชี้ขึ้นไปยังปุ่ม Dropdown */
+.math-hint-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 28px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-top: 2.5px solid #fed7aa;
+  border-left: 2.5px solid #fed7aa;
+  transform: rotate(45deg);
+  z-index: 1;
+}
+
+@keyframes hintDropdownPop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hint-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px dashed #fed7aa;
+  padding-bottom: 5px;
+  position: relative;
+  z-index: 2;
+}
+
+.hint-header-title {
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #c2410c;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hint-close-btn {
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  color: #dc2626;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+.hint-close-btn:hover {
+  background: #fee2e2;
+  transform: scale(1.1);
+}
+
+.hint-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.hint-step-item {
+  background: #fffbeb;
+  border: 1.5px solid #fef3c7;
+  border-radius: 12px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hint-step-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #b45309;
+}
+
+.hint-step-math {
+  font-family: 'Kanit', monospace;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1e293b;
+  background: #ffffff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid #fde68a;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.hint-step-desc {
+  font-size: 0.68rem;
+  color: #475569;
+  line-height: 1.25;
+}
+
+.hint-summary-badge {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.22);
+  margin-top: 2px;
 }
 
 /* =========================================================
@@ -1506,6 +1691,18 @@ body {
     margin: 2px 0;
   }
 
+  .math-hint-dropdown {
+    right: -45px;
+    width: 275px;
+    max-width: calc(100vw - 20px);
+    max-height: 270px;
+    z-index: 100;
+  }
+
+  .math-hint-dropdown::before {
+    right: 70px;
+  }
+
   .vertical-math-grid {
     padding: 6px 12px;
     border-radius: 16px;
@@ -2426,4 +2623,426 @@ body {
 
 .volume-ok-btn:active {
   transform: translateY(2px);
+}
+
+/* =========================================================
+   หน้าแรก (Home Screen) & ปุ่มแคปซูล 2 หัวข้อ
+   ตามภาพวาด: 1. การบวกและการลบ  2. การคูณและการหาร
+   ========================================================= */
+
+.home-screen-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  animation: homePopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes homePopIn {
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.home-card-inner {
+  background: var(--card-bg);
+  border-radius: 28px;
+  border: 3.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 18px 45px rgba(72, 52, 212, 0.35), 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 24px 32px;
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  text-align: center;
+}
+
+.home-header-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.home-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.home-title-row .crown-icon {
+  font-size: 1.55rem;
+}
+
+.home-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #2d3436;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.home-sparkle-tag {
+  background: linear-gradient(135deg, #f0932b 0%, #ffbe76 100%);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(240, 147, 43, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.3px;
+}
+
+/* มาสคอตหน้าแรก */
+.home-mascot-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.home-slime-avatar {
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.home-slime-avatar:hover {
+  transform: scale(1.08) rotate(-3deg);
+}
+
+.home-slime-avatar:active {
+  transform: scale(0.95) rotate(3deg);
+}
+
+.home-speech-bubble {
+  background: #ffffff;
+  border: 2px solid #a29bfe;
+  border-radius: 20px;
+  padding: 10px 18px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #2d3436;
+  box-shadow: 0 6px 16px rgba(162, 155, 254, 0.22);
+  position: relative;
+  max-width: 380px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.home-speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 10px solid #a29bfe;
+}
+
+.home-speech-bubble::after {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 8px solid #ffffff;
+}
+
+.home-instruction-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #636e72;
+  margin: 0;
+}
+
+/* กลุ่มปุ่มแคปซูล 2 หัวข้อ */
+.home-capsules-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 580px;
+}
+
+.mode-capsule-btn {
+  width: 100%;
+  border-radius: 999px; /* ทรงแคปซูลมน เหมือนในภาพวาด */
+  padding: 14px 24px;
+  border: 3.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  text-decoration: none;
+  font-family: inherit;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+  user-select: none;
+}
+
+/* 1. ปุ่มการบวกและการลบ: โทนสีส้มแดงสดใส */
+.mode-capsule-btn.btn-add-sub {
+  background: linear-gradient(135deg, #ff7675 0%, #ee5253 50%, #ff4757 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 26px rgba(238, 82, 83, 0.42), inset 0 2px 0 rgba(255, 255, 255, 0.55);
+}
+
+.mode-capsule-btn.btn-add-sub:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 14px 32px rgba(238, 82, 83, 0.52), inset 0 2px 0 rgba(255, 255, 255, 0.65);
+}
+
+.mode-capsule-btn.btn-add-sub:active {
+  transform: translateY(2px) scale(0.99);
+  box-shadow: 0 5px 14px rgba(238, 82, 83, 0.4);
+}
+
+/* 2. ปุ่มการคูณและการหาร: โทนสีน้ำเงินม่วงสดใส */
+.mode-capsule-btn.btn-mul-div {
+  background: linear-gradient(135deg, #0984e3 0%, #5f27cd 55%, #341f97 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 26px rgba(95, 39, 205, 0.42), inset 0 2px 0 rgba(255, 255, 255, 0.55);
+}
+
+.mode-capsule-btn.btn-mul-div:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 14px 32px rgba(95, 39, 205, 0.52), inset 0 2px 0 rgba(255, 255, 255, 0.65);
+}
+
+.mode-capsule-btn.btn-mul-div:active {
+  transform: translateY(2px) scale(0.99);
+  box-shadow: 0 5px 14px rgba(95, 39, 205, 0.4);
+}
+
+.capsule-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.capsule-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.capsule-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  flex: 1;
+  gap: 2px;
+}
+
+.capsule-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
+  letter-spacing: 0.3px;
+}
+
+.capsule-subtitle {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.95;
+  line-height: 1.2;
+}
+
+.capsule-action-badge {
+  background: #ffffff;
+  color: #2d3436;
+  font-size: 0.92rem;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.mode-capsule-btn:hover .capsule-action-badge {
+  transform: translateX(4px);
+}
+
+.capsule-arrow {
+  font-size: 1rem;
+  color: #e84393;
+}
+
+.btn-mul-div .capsule-arrow {
+  color: #5f27cd;
+}
+
+/* แถบแจ้งเตือนเป้าหมายล่าง */
+.home-footer-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff9e6;
+  border: 1.5px dashed #f1c40f;
+  padding: 7px 18px;
+  border-radius: 999px;
+  color: #d35400;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/* แถบระบุคนออกแบบ ด้านล่างกลางจอ ตัวอักษรสีขาว ไม่ทับหน้าต่างใดๆ */
+.app-global-footer {
+  width: 100%;
+  max-width: 1140px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0 1px 0;
+  font-family: 'Kanit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.8px;
+  user-select: none;
+  z-index: 2;
+  opacity: 0.95;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* สไตล์ปุ่ม หน้าแรก ใน Game Screen Header */
+.header-left-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-nav-btn {
+  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(9, 132, 227, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.home-nav-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 15px rgba(9, 132, 227, 0.45);
+}
+
+.home-nav-btn:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+/* Wrapper สำหรับหน้าเล่นเกม */
+.game-screen-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+@media (max-width: 600px) {
+  .home-card-inner {
+    padding: 16px 14px;
+    gap: 12px;
+  }
+  .home-header-badge {
+    gap: 6px;
+  }
+  .home-sparkle-tag {
+    font-size: 0.82rem;
+    padding: 3px 12px;
+  }
+  .home-title-row .crown-icon {
+    font-size: 1.3rem;
+  }
+  .home-title {
+    font-size: 1.45rem;
+  }
+  .home-mascot-row {
+    gap: 10px;
+  }
+  .home-slime-svg {
+    width: 80px;
+    height: 68px;
+  }
+  .home-speech-bubble {
+    font-size: 0.86rem;
+    padding: 8px 12px;
+  }
+  .capsule-title {
+    font-size: 1.15rem;
+  }
+  .capsule-subtitle {
+    font-size: 0.76rem;
+  }
+  .capsule-icon-wrap {
+    width: 42px;
+    height: 42px;
+  }
+  .capsule-icon {
+    font-size: 18px;
+  }
+  .mode-capsule-btn {
+    padding: 10px 16px;
+  }
+  .capsule-action-badge {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+  }
+  .home-footer-badge {
+    font-size: 0.78rem;
+    padding: 6px 12px;
+  }
+  .app-global-footer {
+    font-size: 0.72rem;
+    padding: 2px 0 0 0;
+  }
 }
