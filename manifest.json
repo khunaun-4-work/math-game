@@ -1,13 +1,21 @@
 {
-  "name": "อาณาจักรของน้องอุ้ม - คณิตคิดไว",
-  "short_name": "คณิตคิดไว",
-  "description": "เกมฝึกคำนวณคณิตคิดไว อาณาจักรของน้องอุ้ม ตั้งโจทย์แนวตั้งพร้อมตัวทด",
+  "name": "คณิตคิดสนุก - อาณาจักรของน้องอุ้ม",
+  "short_name": "คณิตคิดสนุก",
+  "description": "เกมฝึกคำนวณคณิตคิดสนุก อาณาจักรของน้องอุ้ม โจทย์แนวตั้งพร้อมตัวทดและวิธีคิด สำหรับ iPad",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f8f9fe",
-  "theme_color": "#5f27cd",
+  "background_color": "#4834d4",
+  "theme_color": "#4834d4",
+  "categories": ["education", "kids", "games"],
   "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",

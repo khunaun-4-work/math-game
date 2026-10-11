@@ -1,7 +1,7 @@
 /**
  * Service Worker สำหรับเล่นแบบ Offline บน iPad และอุปกรณ์พกพา
  */
-const CACHE_NAME = 'slime-math-v32';
+const CACHE_NAME = 'slime-math-v33';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -40,7 +40,25 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
+        // บันทึกฟอนต์ Google Fonts ลงใน Cache เมื่อมีการเรียกใช้งานออนไลน์
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          (event.request.url.includes('fonts.googleapis.com') || event.request.url.includes('fonts.gstatic.com'))
+        ) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        return cachedResponse;
+      });
     })
   );
 });

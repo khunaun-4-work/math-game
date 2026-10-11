@@ -3,15 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>อาณาจักรของน้องอุ้ม - คณิตคิดไว</title>
+  <title>คณิตคิดสนุก - อาณาจักรของน้องอุ้ม</title>
   <meta name="author" content="KHUNAUN">
-  <!-- iOS / iPad Web App Configuration (ติดตั้งลง iPad เป็นแอปเต็มจอได้ทันที) -->
+  
+  <!-- การตั้งค่า PWA / Web App สำหรับ iPad Air 5 และอุปกรณ์ iOS/iPadOS (ติดตั้งลงหน้าจอโฮมเป็นแอปเต็มจอได้ทันที) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="คณิตคิดไว">
-  <meta name="theme-color" content="#5f27cd">
+  <meta name="apple-mobile-web-app-title" content="คณิตคิดสนุก">
+  <meta name="application-name" content="คณิตคิดสนุก">
+  <meta name="theme-color" content="#4834d4">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Apple Touch Icons สำหรับ iPad Air และอุปกรณ์ Apple ทุกรุ่น -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon.png">
+
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <link rel="manifest" href="manifest.json">
 
   <!-- Google Fonts: Mali, Kanit & Fredoka เพื่อความน่ารัก สดใส เหมาะสำหรับเด็ก -->
@@ -126,6 +137,12 @@
           <span class="footer-target-icon">🍦</span>
           <span class="footer-target-text">เป้าหมาย: สะสมคิดเลขถูกครบ 100 ข้อ ขอให้ยายพาไปซื้อขนม! 👵✨</span>
         </div>
+
+        <!-- ปุ่มแนะนำการติดตั้งเป็นแอปบน iPad (จะซ่อนอัตโนมัติเมื่อเปิดในโหมดแอปแล้ว) -->
+        <button type="button" id="installGuideBtn" class="home-install-btn" title="วิธีติดตั้งลง iPad เป็นแอปเต็มจอ">
+          <span class="install-btn-icon">📲</span>
+          <span>วิธีติดตั้งเป็นแอปบน iPad (เล่นเต็มจอ & ออฟไลน์) ✨</span>
+        </button>
       </div>
     </div>
 
@@ -535,6 +552,49 @@
 
       <button type="button" id="confirmVolumeBtn" class="volume-ok-btn">
         <span>ตกลง / ปิดหน้าต่าง ✨</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: แนะนำวิธีติดตั้งลง iPad (Add to Home Screen) -->
+  <div id="installGuideModal" class="confirm-overlay" style="display: none;" aria-hidden="true">
+    <div class="install-guide-card" role="dialog" aria-modal="true" aria-labelledby="installGuideTitle">
+      <button type="button" class="reward-card-close-x" id="closeInstallGuideX" title="ปิดหน้าต่าง">✕</button>
+      <div class="install-guide-hero">
+        <span class="guide-hero-icon">📲</span>
+      </div>
+      <h2 id="installGuideTitle" class="install-guide-title">วิธีติดตั้งเป็นแอปบน iPad</h2>
+      <p class="install-guide-sub">ติดตั้งครั้งเดียว เปิดเล่นเต็มจอและเล่นแบบออฟไลน์ได้ตลอดเวลา!</p>
+      
+      <div class="install-steps-container">
+        <div class="install-step-item">
+          <div class="step-num-badge">1</div>
+          <div class="step-detail">
+            เปิดเว็บนี้ในเบราว์เซอร์ <strong>Safari</strong> บนเครื่อง iPad
+          </div>
+        </div>
+        <div class="install-step-item">
+          <div class="step-num-badge">2</div>
+          <div class="step-detail">
+            แตะปุ่ม <strong>แชร์ (Share ⎋)</strong> ที่แถบด้านบนของ Safari
+          </div>
+        </div>
+        <div class="install-step-item">
+          <div class="step-num-badge">3</div>
+          <div class="step-detail">
+            เลื่อนลงมาแล้วเลือก <strong>"เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen) ➕</strong>
+          </div>
+        </div>
+        <div class="install-step-item">
+          <div class="step-num-badge">4</div>
+          <div class="step-detail">
+            แตะ <strong>"เพิ่ม" (Add)</strong> มุมขวาบน จะได้ไอคอนแอปบนหน้าจอ iPad พร้อมเล่นทันที! 🎉
+          </div>
+        </div>
+      </div>
+
+      <button type="button" id="closeInstallGuideBtn" class="install-guide-ok-btn">
+        <span>เข้าใจแล้ว / ลุยกันเลย! 🚀</span>
       </button>
     </div>
   </div>

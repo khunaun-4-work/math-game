@@ -57,6 +57,8 @@ html, body {
   height: 100%;
   height: 100dvh;
   overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
 }
 
 body {
@@ -2920,6 +2922,132 @@ body {
   color: #d35400;
   font-size: 0.88rem;
   font-weight: 600;
+}
+
+/* ปุ่มแนะนำวิธีติดตั้งลง iPad บนหน้าแรก */
+.home-install-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #5758bb;
+  border: 1.5px solid #dcdde1;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-install-btn:hover {
+  background: #ffffff;
+  border-color: #5758bb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(87, 88, 187, 0.2);
+}
+
+.home-install-btn:active {
+  transform: translateY(1px);
+}
+
+/* Modal: กล่องแนะนำวิธีติดตั้งลง iPad */
+.install-guide-card {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 24px 28px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  position: relative;
+  animation: popInModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.install-guide-hero {
+  font-size: 2.8rem;
+  line-height: 1;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.install-guide-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #2d3436;
+  margin: 0 0 4px 0;
+}
+
+.install-guide-sub {
+  font-size: 0.86rem;
+  color: #636e72;
+  margin: 0 0 16px 0;
+}
+
+.install-steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.install-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8f9fe;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #e1e4ed;
+}
+
+.step-num-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4834d4, #686de0);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-detail {
+  font-size: 0.88rem;
+  color: #2d3436;
+  line-height: 1.35;
+}
+
+.install-guide-ok-btn {
+  background: linear-gradient(135deg, #00b894, #00cec9);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.35);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.install-guide-ok-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 184, 148, 0.45);
+}
+
+.install-guide-ok-btn:active {
+  transform: translateY(1px);
 }
 
 /* แถบระบุคนออกแบบ ด้านล่างกลางจอ ตัวอักษรสีขาว ไม่ทับหน้าต่างใดๆ */

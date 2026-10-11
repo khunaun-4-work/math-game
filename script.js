@@ -137,7 +137,13 @@
     confirmResetBtn: document.getElementById('confirmResetBtn'),
     resetBestCheckbox: document.getElementById('resetBestCheckbox'),
     resetCheckboxLabel: document.getElementById('resetCheckboxLabel'),
-    modalBestScoreVal: document.getElementById('modalBestScoreVal')
+    modalBestScoreVal: document.getElementById('modalBestScoreVal'),
+
+    // Modal แนะนำวิธีติดตั้งลง iPad
+    installGuideBtn: document.getElementById('installGuideBtn'),
+    installGuideModal: document.getElementById('installGuideModal'),
+    closeInstallGuideBtn: document.getElementById('closeInstallGuideBtn'),
+    closeInstallGuideX: document.getElementById('closeInstallGuideX')
   };
 
   // --- ฟังก์ชันจัดรูปแบบคะแนน (เช่น 0.5, 1, 1.5, 100) ---
@@ -1813,6 +1819,42 @@
       });
     }
 
+    // Modal แนะนำวิธีติดตั้งลง iPad
+    function closeInstallGuide() {
+      playPopSound();
+      if (dom.installGuideModal) {
+        dom.installGuideModal.style.display = 'none';
+        dom.installGuideModal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    if (dom.installGuideBtn) {
+      dom.installGuideBtn.addEventListener('click', () => {
+        initAudio();
+        playPopSound();
+        if (dom.installGuideModal) {
+          dom.installGuideModal.style.display = 'flex';
+          dom.installGuideModal.setAttribute('aria-hidden', 'false');
+        }
+      });
+    }
+
+    if (dom.closeInstallGuideBtn) {
+      dom.closeInstallGuideBtn.addEventListener('click', closeInstallGuide);
+    }
+
+    if (dom.closeInstallGuideX) {
+      dom.closeInstallGuideX.addEventListener('click', closeInstallGuide);
+    }
+
+    if (dom.installGuideModal) {
+      dom.installGuideModal.addEventListener('click', (e) => {
+        if (e.target === dom.installGuideModal) {
+          closeInstallGuide();
+        }
+      });
+    }
+
     // รองรับแป้นพิมพ์กายภาพบนคอมพิวเตอร์
     window.addEventListener('keydown', (e) => {
       if (e.key >= '0' && e.key <= '9') {
@@ -1915,6 +1957,14 @@
 
     // แสดงหน้าแรก (Home Screen) ตั้งแต่เปิดเว็บ
     showHomeScreen();
+
+    // ตรวจสอบว่าเปิดในโหมดแอปเต็มจอของ iPad (Standalone) แล้วหรือไม่ หากติดตั้งแล้วจะซ่อนปุ่มแนะนำ
+    try {
+      const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+      if (isStandalone && dom.installGuideBtn) {
+        dom.installGuideBtn.style.display = 'none';
+      }
+    } catch (e) {}
   }
 
   if (document.readyState === 'loading') {
