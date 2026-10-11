@@ -1,14 +1,14 @@
 /**
  * Service Worker สำหรับเล่นแบบ Offline บน iPad และอุปกรณ์พกพา
  */
-const CACHE_NAME = 'slime-math-v34';
+const CACHE_NAME = 'slime-math-v37';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
-  './style.css?v=34',
+  './style.css?v=37',
   './script.js',
-  './script.js?v=34',
+  './script.js?v=37',
   './manifest.json',
   './apple-touch-icon.png',
   './icon-192.png',

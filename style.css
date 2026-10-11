@@ -50,34 +50,57 @@
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
+  font-family: inherit;
 }
 
-html, body {
+html {
   width: 100%;
   height: 100%;
-  height: 100dvh;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  background-color: #4834d4;
+  background: linear-gradient(135deg, #4834d4 0%, #686de0 40%, #be2edd 100%);
+  background-attachment: fixed;
   overflow: hidden;
   overscroll-behavior: none;
   -webkit-overscroll-behavior: none;
 }
 
 body {
-  font-family: 'Kanit', 'Mali', sans-serif;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  background-color: #4834d4;
   background: linear-gradient(135deg, #4834d4 0%, #686de0 40%, #be2edd 100%);
+  background-attachment: fixed;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   color: var(--text-main);
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  margin: 0;
   padding: env(safe-area-inset-top, 6px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
   -webkit-touch-callout: none;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-overscroll-behavior: none;
 }
 
-/* พื้นหลังฟองสบู่และดาวเวทมนตร์ */
+/* พื้นหลังฟองสบู่และดาวเวทมนตร์ (ครอบคลุมเต็มจอ 100% ถึงขอบกระจก iPad) */
 .magic-background {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: -webkit-fill-available;
+  background-color: #4834d4;
+  background: linear-gradient(135deg, #4834d4 0%, #686de0 40%, #be2edd 100%);
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
@@ -287,7 +310,7 @@ body {
   gap: 3px;
   padding: 2px 8px;
   border-radius: 10px;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
@@ -438,7 +461,7 @@ body {
 }
 
 .hint-header-title {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
   color: #c2410c;
@@ -495,7 +518,7 @@ body {
 }
 
 .hint-step-math {
-  font-family: 'Kanit', monospace;
+  font-family: 'IBM Plex Sans Thai', monospace;
   font-size: 0.92rem;
   font-weight: 800;
   color: #1e293b;
@@ -516,7 +539,7 @@ body {
 .hint-summary-badge {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
   padding: 5px 8px;
@@ -558,7 +581,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Fredoka', 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', 'Fredoka', sans-serif;
   font-size: 4rem; /* ตัวเลขโตและสูงขึ้น คมชัด */
   font-weight: 800;
   color: #1e272e;
@@ -585,7 +608,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Fredoka', 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', 'Fredoka', sans-serif;
   font-size: 4rem;
   font-weight: 800;
   color: #ff4757;
@@ -648,7 +671,7 @@ body {
   background: #ffffff;
   border: 3px dashed #b2bec3;
   border-radius: 18px;
-  font-family: 'Fredoka', 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', 'Fredoka', sans-serif;
   font-size: 3.8rem;
   font-weight: 800;
   color: #2e1e69;
@@ -838,7 +861,7 @@ body {
 .slime-speech {
   background: #ffffff;
   color: #2d3436;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.76rem;
   font-weight: 700;
   padding: 3px 8px;
@@ -937,7 +960,7 @@ body {
 }
 
 .side-card-label {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.74rem;
   font-weight: 700;
   color: var(--text-muted);
@@ -946,7 +969,7 @@ body {
 }
 
 .side-card-val {
-  font-family: 'Fredoka', 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', 'Fredoka', sans-serif;
   font-size: 1.4rem;
   font-weight: 800;
   line-height: 1.1;
@@ -1094,7 +1117,7 @@ body {
   box-shadow: 0 2px 0 #b2bec3;
   transition: all 0.1s ease;
   touch-action: manipulation;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.72rem;
   font-weight: 700;
   color: #2d3436;
@@ -1170,7 +1193,7 @@ body {
   min-height: 44px;
   border-radius: 13px;
   border: none;
-  font-family: 'Fredoka', 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', 'Fredoka', sans-serif;
   font-size: 1.55rem;
   font-weight: 700;
   display: flex;
@@ -1243,7 +1266,7 @@ body {
   border: 2px solid #55efc4;
   box-shadow: 0 3px 0 var(--btn-submit-shadow), 0 5px 14px rgba(0, 184, 148, 0.35);
   font-size: 1.25rem;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -2100,50 +2123,287 @@ body {
   box-shadow: 0 2px 8px rgba(255, 159, 67, 0.35);
 }
 
-.grandma-hero {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: 4px 0;
+/* เวทีถนนจำลอง: คุณยายขี่มอเตอร์ไซค์ไปซื้อขนม ผ่านไปผ่านมา */
+.grandma-road-stage {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  height: 120px;
+  background: linear-gradient(180deg, #93c5fd 0%, #bfdbfe 52%, #e2e8f0 52%, #cbd5e1 100%);
+  border-radius: 20px;
+  border: 3px solid #fde047;
+  overflow: hidden;
+  margin: 6px 0;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.12), 0 4px 14px rgba(253, 224, 71, 0.35);
 }
 
-.hero-grandma {
-  font-size: 4.2rem;
-  animation: grandmaBounce 1.8s infinite ease-in-out;
+/* Scenery: Sun, Clouds, Trees, Shop sign */
+.scenery-sun {
+  position: absolute;
+  top: 8px;
+  right: 75px;
+  font-size: 1.35rem;
+  line-height: 1;
+  user-select: none;
+  animation: sunSpin 14s infinite linear;
+}
+
+@keyframes sunSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.cloud-1 {
+  top: 10px;
+  left: 10%;
+  width: 44px;
+  height: 14px;
+  animation: floatCloud1 16s infinite linear;
+}
+
+.cloud-2 {
+  top: 18px;
+  left: 58%;
+  width: 36px;
+  height: 12px;
+  animation: floatCloud2 22s infinite linear reverse;
+}
+
+@keyframes floatCloud1 {
+  0% { transform: translateX(-50px); }
+  100% { transform: translateX(380px); }
+}
+
+@keyframes floatCloud2 {
+  0% { transform: translateX(-40px); }
+  100% { transform: translateX(360px); }
+}
+
+.scenery-item {
+  position: absolute;
+  bottom: 46px;
+  user-select: none;
+  pointer-events: none;
   line-height: 1;
 }
 
-.hero-heart {
-  font-size: 2rem;
-  animation: pulseHeart 1.2s infinite ease-in-out;
-  line-height: 1;
+.scenery-tree-1 {
+  left: 8px;
+  font-size: 1.35rem;
+  opacity: 0.95;
 }
 
-.hero-treats {
-  font-size: 3.2rem;
-  animation: treatFloat 2s infinite ease-in-out;
-  line-height: 1;
+.scenery-tree-2 {
+  right: 130px;
+  font-size: 1.15rem;
+  opacity: 0.9;
 }
 
-@keyframes grandmaBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px) scale(1.05); }
+.scenery-shop-sign {
+  right: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #c0392b;
+  background: #ffffff;
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1.5px solid #ffa801;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
 }
 
-@keyframes pulseHeart {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.25); }
+/* Road surface & markings */
+.road-surface {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  background: #2b3544;
 }
 
-@keyframes treatFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-6px) rotate(5deg); }
+.road-curb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #ef4444 0, #ef4444 14px, #ffffff 14px, #ffffff 28px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.road-line {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, #facc15 0, #facc15 16px, transparent 16px, transparent 32px);
+}
+
+/* คุณยายขี่มอเตอร์ไซค์ (Rider Container) */
+.grandma-rider-wrap {
+  position: absolute;
+  bottom: 4px;
+  left: 6px;
+  width: 110px;
+  height: 90px;
+  z-index: 5;
+  animation: drivePath 8s infinite ease-in-out;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.grandma-rider-wrap:focus-visible {
+  filter: drop-shadow(0 0 6px #ffd32a);
+}
+
+/* Movement across road */
+@keyframes drivePath {
+  0% { left: 6px; }
+  45% { left: calc(100% - 114px); }
+  50% { left: calc(100% - 114px); }
+  95% { left: 6px; }
+  100% { left: 6px; }
+}
+
+/* Facing direction flip (scaleX) */
+.grandma-bike-graphic {
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  animation: faceDirection 8s infinite ease-in-out;
+  position: relative;
+}
+
+@keyframes faceDirection {
+  0%, 46% { transform: scaleX(1); }
+  48% { transform: scaleX(0.05) rotate(4deg); }
+  50%, 96% { transform: scaleX(-1); }
+  98% { transform: scaleX(-0.05) rotate(4deg); }
+  100% { transform: scaleX(1); }
+}
+
+/* Motorbike engine bobbing / suspension vibration */
+.grandma-rider-inner {
+  width: 100%;
+  height: 100%;
+  animation: bikeEngineBob 0.3s infinite ease-in-out alternate;
+  position: relative;
+  transform-origin: 50% 90%;
+}
+
+@keyframes bikeEngineBob {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-2.5px); }
+}
+
+/* Wheelie boost when honking */
+.grandma-rider-inner.honk-boost {
+  animation: bikeHonkBoost 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+@keyframes bikeHonkBoost {
+  0% { transform: translateY(0) rotate(0deg); }
+  35% { transform: translateY(-12px) rotate(-14deg) scale(1.08); }
+  70% { transform: translateY(-3px) rotate(-3deg) scale(1.03); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+/* Speech bubble above Grandma (stays upright, not mirrored) */
+.grandma-speech-bubble {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #2d3436;
+  border: 2px solid #ffd32a;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+  opacity: 0.96;
+  z-index: 10;
+  animation: bubbleGently 2s infinite ease-in-out alternate;
+  transition: transform 0.2s ease;
+}
+
+@keyframes bubbleGently {
+  0% { transform: translateX(-50%) translateY(0); }
+  100% { transform: translateX(-50%) translateY(-3px); }
+}
+
+.grandma-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px 5px 0;
+  border-style: solid;
+  border-color: #ffd32a transparent transparent;
+  display: block;
+  width: 0;
+}
+
+/* Wheels spinning */
+.rear-wheel, .front-wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spinWheel 0.32s linear infinite;
+}
+
+@keyframes spinWheel {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Treats in cargo basket jiggling */
+.basket-treats {
+  animation: treatsJiggle 0.5s infinite ease-in-out alternate;
+  transform-origin: 20px 25px;
+}
+
+@keyframes treatsJiggle {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-2px) rotate(4deg); }
+}
+
+/* Exhaust smoke puffs drifting behind */
+.smoke-puff {
+  position: absolute;
+  bottom: 12px;
+  left: 8px;
+  width: 10px;
+  height: 10px;
+  background: rgba(203, 213, 225, 0.75);
+  border-radius: 50%;
+  animation: puffDrift 0.65s infinite ease-out;
+}
+
+@keyframes puffDrift {
+  0% { transform: scale(0.6) translate(0, 0); opacity: 0.9; }
+  100% { transform: scale(1.8) translate(-22px, -8px); opacity: 0; }
 }
 
 .reward-title {
   margin: 0;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 1.55rem;
   font-weight: 800;
   color: #e17055;
@@ -2196,7 +2456,7 @@ body {
   border: 2px solid #55efc4;
   border-radius: 16px;
   padding: 11px;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 1.05rem;
   font-weight: 800;
   cursor: pointer;
@@ -2256,7 +2516,7 @@ body {
 
 .confirm-title {
   margin: 0;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
   color: #2d3436;
@@ -2345,7 +2605,7 @@ body {
 }
 
 .reset-checkbox-title {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.88rem;
   font-weight: 700;
   color: #334155;
@@ -2384,7 +2644,7 @@ body {
   flex: 1;
   padding: 9px;
   border-radius: 12px;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.88rem;
   font-weight: 800;
   cursor: pointer;
@@ -2451,7 +2711,7 @@ body {
 }
 
 .volume-title {
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 1.25rem;
   font-weight: 800;
   color: #0f172a;
@@ -2492,7 +2752,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-weight: 700;
 }
 
@@ -2505,7 +2765,7 @@ body {
 }
 
 .volume-group-percent {
-  font-family: 'Fredoka', 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', 'Fredoka', sans-serif;
   font-size: 1.1rem;
   font-weight: 800;
   color: #0284c7;
@@ -2586,7 +2846,7 @@ body {
   border: 1.5px solid #cbd5e1;
   background: #ffffff;
   color: #334155;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
@@ -2613,7 +2873,7 @@ body {
   border: none;
   border-radius: 14px;
   padding: 10px;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.95rem;
   font-weight: 800;
   cursor: pointer;
@@ -3003,7 +3263,40 @@ body {
 .install-guide-sub {
   font-size: 0.86rem;
   color: #636e72;
-  margin: 0 0 16px 0;
+  margin: 0 0 14px 0;
+}
+
+.guide-tabs-wrap {
+  display: flex;
+  gap: 6px;
+  background: #f1f2f6;
+  padding: 4px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.guide-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #57606f;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.guide-tab-btn:hover {
+  color: #2f3542;
+}
+
+.guide-tab-btn.active {
+  background: #ffffff;
+  color: #4834d4;
+  box-shadow: 0 3px 8px rgba(72, 52, 212, 0.18);
 }
 
 .install-steps-container {
@@ -3088,8 +3381,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 0 1px 0;
-  font-family: 'Kanit', sans-serif;
+  padding: 4px 0 calc(2px + env(safe-area-inset-bottom, 0px)) 0;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
   color: #ffffff;

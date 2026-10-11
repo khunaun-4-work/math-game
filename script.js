@@ -130,6 +130,9 @@
     closeRewardBtn: document.getElementById('closeRewardBtn'),
     closeRewardBtnText: document.getElementById('closeRewardBtnText'),
     rewardCardCloseX: document.getElementById('rewardCardCloseX'),
+    grandmaRiderWrap: document.getElementById('grandmaRiderWrap'),
+    grandmaSpeechBubble: document.getElementById('grandmaSpeechBubble'),
+    grandmaRiderInner: document.getElementById('grandmaRiderInner'),
 
     // Modal ยืนยันการรีเซ็ตคะแนน
     resetConfirmModal: document.getElementById('resetConfirmModal'),
@@ -277,6 +280,30 @@
       osc.stop(audioCtx.currentTime + 0.25);
     } catch (e) {
       console.warn('Audio play error', e);
+    }
+  }
+
+  function playMotorcycleHorn() {
+    if (!state.soundEnabled || !audioCtx || state.sfxVolume <= 0) return;
+    const sfxScale = state.sfxVolume / 100;
+    try {
+      const t = audioCtx.currentTime;
+      // เสียงแตรรถมอเตอร์ไซค์สดใส: ปี๊น-ปี๊น!
+      [0, 0.12].forEach((offset) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(466.16, t + offset); // Bb4
+        osc.frequency.setValueAtTime(523.25, t + offset + 0.02); // C5
+        gain.gain.setValueAtTime(0.2 * sfxScale, t + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.09);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t + offset);
+        osc.stop(t + offset + 0.09);
+      });
+    } catch (e) {
+      console.warn('Horn audio error', e);
     }
   }
 
@@ -1416,6 +1443,12 @@
         ? '🎒 เย้! ขอบคุณคุณยาย / เล่นสะสมต่อเลย ✨'
         : `🚀 ลุยคิดเลขต่อเลย! (ขาดอีก ${remaining} ข้อ ✨)`;
     }
+
+    if (dom.grandmaSpeechBubble) {
+      dom.grandmaSpeechBubble.textContent = isCompleted
+        ? 'เย้! ครบ 100 ข้อ ยายพาแว้นไปซื้อขนมเลย! 🛵💨🍨'
+        : 'ปี๊นๆ! ครบ 100 ข้อ ยายพาไปซื้อขนมแน่นอน! 🛵🍭';
+    }
   }
 
   function closeRewardModal() {
@@ -1819,6 +1852,48 @@
       });
     }
 
+    // คุณยายขี่มอเตอร์ไซค์: บีบแตร ปี๊นๆ & สุ่มคำพูด & เด้งยกล้อ
+    if (dom.grandmaRiderWrap) {
+      const hornQuotes = [
+        'ปี๊นๆ! หลบหน่อยจ้า คุณยายจะซิ่ง! 🛵💨',
+        'บรื๊นๆ! 100 ข้อ ยายพาเหมาขนมหมดร้าน! 🍨🧁',
+        'น้องอุ้มเก่งมาก! ยายพาแว้นไปซื้อขนมจ้า! 🍦',
+        'ฮิ้ววว! ยายมารับแล้ว เก่งที่สุดเลย! 🍭🎉',
+        'ปี๊นๆ! ขี่มอเตอร์ไซค์ไปซื้อขนมกันน~ 🛵✨'
+      ];
+      let quoteIdx = 0;
+
+      function triggerGrandmaHonk() {
+        initAudio();
+        playMotorcycleHorn();
+        if (dom.grandmaSpeechBubble) {
+          dom.grandmaSpeechBubble.textContent = hornQuotes[quoteIdx % hornQuotes.length];
+          quoteIdx++;
+        }
+        if (dom.grandmaRiderInner) {
+          dom.grandmaRiderInner.classList.remove('honk-boost');
+          void dom.grandmaRiderInner.offsetWidth; // trigger reflow
+          dom.grandmaRiderInner.classList.add('honk-boost');
+          setTimeout(() => {
+            if (dom.grandmaRiderInner) dom.grandmaRiderInner.classList.remove('honk-boost');
+          }, 650);
+        }
+      }
+
+      dom.grandmaRiderWrap.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerGrandmaHonk();
+      });
+
+      dom.grandmaRiderWrap.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          triggerGrandmaHonk();
+        }
+      });
+    }
+
     // Modal แนะนำวิธีติดตั้งลง iPad (รองรับทั้ง Event Listener และ Global Function Fallback)
     function openInstallGuideModal() {
       try {
@@ -1847,9 +1922,40 @@
       }
     }
 
+    // สลับแท็บแนะนำติดตั้งระหว่าง Android และ iPad
+    function switchGuideTab(tab) {
+      try { playPopSound(); } catch (e) {}
+      const tabAndroid = document.getElementById('guideTabAndroid');
+      const tabIpad = document.getElementById('guideTabIpad');
+      const contentAndroid = document.getElementById('guideContentAndroid');
+      const contentIpad = document.getElementById('guideContentIpad');
+      if (tab === 'android') {
+        if (tabAndroid) tabAndroid.classList.add('active');
+        if (tabIpad) tabIpad.classList.remove('active');
+        if (contentAndroid) contentAndroid.style.display = 'block';
+        if (contentIpad) contentIpad.style.display = 'none';
+      } else {
+        if (tabAndroid) tabAndroid.classList.remove('active');
+        if (tabIpad) tabIpad.classList.add('active');
+        if (contentAndroid) contentAndroid.style.display = 'none';
+        if (contentIpad) contentIpad.style.display = 'block';
+      }
+    }
+
+    // รองรับการติดตั้งแบบ 1-Click บนมือถือ Android (beforeinstallprompt)
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (dom.installGuideBtn) {
+        dom.installGuideBtn.style.display = 'inline-flex';
+      }
+    });
+
     // ส่งออกไปยัง window เพื่อให้ inline onclick สามารถเรียกใช้งานได้ทันที
     window.openInstallGuideModal = openInstallGuideModal;
     window.closeInstallGuideModal = closeInstallGuideModal;
+    window.switchGuideTab = switchGuideTab;
     window.playPopSound = playPopSound;
 
     if (dom.installGuideBtn) {
