@@ -2956,16 +2956,34 @@ body {
 }
 
 /* Modal: กล่องแนะนำวิธีติดตั้งลง iPad */
+#installGuideModal {
+  z-index: 1500;
+}
+
 .install-guide-card {
   background: #ffffff;
   border-radius: 28px;
   padding: 24px 28px;
   max-width: 480px;
+  max-height: 92vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   width: 90%;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
   text-align: center;
   position: relative;
-  animation: popInModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: popInModal 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popInModal {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .install-guide-hero {
@@ -2993,7 +3011,7 @@ body {
   flex-direction: column;
   gap: 10px;
   text-align: left;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .install-step-item {
@@ -3024,6 +3042,18 @@ body {
   font-size: 0.88rem;
   color: #2d3436;
   line-height: 1.35;
+}
+
+.install-tip-box {
+  background: #fff8e7;
+  border: 1px dashed #f1c40f;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: #7f5f00;
+  margin-bottom: 18px;
+  text-align: left;
+  line-height: 1.4;
 }
 
 .install-guide-ok-btn {

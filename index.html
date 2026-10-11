@@ -29,7 +29,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Mali:wght@500;700&family=Fredoka:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
   <!-- พื้นหลังดาวและฟองสบู่เวทมนตร์ -->
@@ -139,7 +139,7 @@
         </div>
 
         <!-- ปุ่มแนะนำการติดตั้งเป็นแอปบน iPad (จะซ่อนอัตโนมัติเมื่อเปิดในโหมดแอปแล้ว) -->
-        <button type="button" id="installGuideBtn" class="home-install-btn" title="วิธีติดตั้งลง iPad เป็นแอปเต็มจอ">
+        <button type="button" id="installGuideBtn" class="home-install-btn" title="วิธีติดตั้งลง iPad เป็นแอปเต็มจอ" onclick="openInstallGuideModal()">
           <span class="install-btn-icon">📲</span>
           <span>วิธีติดตั้งเป็นแอปบน iPad (เล่นเต็มจอ & ออฟไลน์) ✨</span>
         </button>
@@ -557,9 +557,9 @@
   </div>
 
   <!-- Modal: แนะนำวิธีติดตั้งลง iPad (Add to Home Screen) -->
-  <div id="installGuideModal" class="confirm-overlay" style="display: none;" aria-hidden="true">
+  <div id="installGuideModal" class="confirm-overlay" style="display: none;" aria-hidden="true" onclick="if(event.target===this)closeInstallGuideModal()">
     <div class="install-guide-card" role="dialog" aria-modal="true" aria-labelledby="installGuideTitle">
-      <button type="button" class="reward-card-close-x" id="closeInstallGuideX" title="ปิดหน้าต่าง">✕</button>
+      <button type="button" class="reward-card-close-x" id="closeInstallGuideX" title="ปิดหน้าต่าง" onclick="closeInstallGuideModal()">✕</button>
       <div class="install-guide-hero">
         <span class="guide-hero-icon">📲</span>
       </div>
@@ -593,19 +593,52 @@
         </div>
       </div>
 
-      <button type="button" id="closeInstallGuideBtn" class="install-guide-ok-btn">
+      <div class="install-tip-box">
+        💡 <strong>ข้อดีเมื่อเปิดจากหน้าจอโฮม:</strong> เล่นได้เต็มจอ 100% ไม่มีแถบ Safari บังหน้าจอ และเปิดเล่นออฟไลน์ได้โดยไม่ต้องต่อเน็ตเลยจ้า!
+      </div>
+
+      <button type="button" id="closeInstallGuideBtn" class="install-guide-ok-btn" onclick="closeInstallGuideModal()">
         <span>เข้าใจแล้ว / ลุยกันเลย! 🚀</span>
       </button>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // ฟังก์ชันเปิด/ปิดหน้าต่างแนะนำติดตั้งบน iPad (ทำงานได้ทันที 100% แม้สคริปต์หลักจะยังโหลดไม่เสร็จหรือติดแคช)
+    function openInstallGuideModal() {
+      try {
+        if (window.playPopSound) window.playPopSound();
+      } catch (e) {}
+      var m = document.getElementById('installGuideModal');
+      if (m) {
+        m.style.display = 'flex';
+        m.setAttribute('aria-hidden', 'false');
+      }
+    }
+    function closeInstallGuideModal() {
+      try {
+        if (window.playPopSound) window.playPopSound();
+      } catch (e) {}
+      var m = document.getElementById('installGuideModal');
+      if (m) {
+        m.style.display = 'none';
+        m.setAttribute('aria-hidden', 'true');
+      }
+    }
+    window.openInstallGuideModal = openInstallGuideModal;
+    window.closeInstallGuideModal = closeInstallGuideModal;
+  </script>
+  <script src="script.js?v=34"></script>
   <script>
     // ลงทะเบียน Service Worker สำหรับการเล่นแบบ Offline บน iPad
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('Service Worker registered for iPad offline play', reg))
+        navigator.serviceWorker.register('./sw.js?v=34')
+          .then((reg) => {
+            console.log('Service Worker registered for iPad offline play', reg);
+            // สั่งอัปเดต Service Worker ทันทีเมื่อมีการรีเฟรชหน้า
+            reg.update();
+          })
           .catch((err) => console.warn('Service Worker registration skipped', err));
       });
     }

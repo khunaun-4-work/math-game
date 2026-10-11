@@ -1819,38 +1819,55 @@
       });
     }
 
-    // Modal แนะนำวิธีติดตั้งลง iPad
-    function closeInstallGuide() {
-      playPopSound();
-      if (dom.installGuideModal) {
-        dom.installGuideModal.style.display = 'none';
-        dom.installGuideModal.setAttribute('aria-hidden', 'true');
+    // Modal แนะนำวิธีติดตั้งลง iPad (รองรับทั้ง Event Listener และ Global Function Fallback)
+    function openInstallGuideModal() {
+      try {
+        initAudio();
+        playPopSound();
+      } catch (e) {
+        console.warn('Audio init error on opening install guide', e);
+      }
+      const modal = dom.installGuideModal || document.getElementById('installGuideModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
       }
     }
 
-    if (dom.installGuideBtn) {
-      dom.installGuideBtn.addEventListener('click', () => {
-        initAudio();
+    function closeInstallGuideModal() {
+      try {
         playPopSound();
-        if (dom.installGuideModal) {
-          dom.installGuideModal.style.display = 'flex';
-          dom.installGuideModal.setAttribute('aria-hidden', 'false');
-        }
-      });
+      } catch (e) {
+        console.warn('Audio play error on closing install guide', e);
+      }
+      const modal = dom.installGuideModal || document.getElementById('installGuideModal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    // ส่งออกไปยัง window เพื่อให้ inline onclick สามารถเรียกใช้งานได้ทันที
+    window.openInstallGuideModal = openInstallGuideModal;
+    window.closeInstallGuideModal = closeInstallGuideModal;
+    window.playPopSound = playPopSound;
+
+    if (dom.installGuideBtn) {
+      dom.installGuideBtn.addEventListener('click', openInstallGuideModal);
     }
 
     if (dom.closeInstallGuideBtn) {
-      dom.closeInstallGuideBtn.addEventListener('click', closeInstallGuide);
+      dom.closeInstallGuideBtn.addEventListener('click', closeInstallGuideModal);
     }
 
     if (dom.closeInstallGuideX) {
-      dom.closeInstallGuideX.addEventListener('click', closeInstallGuide);
+      dom.closeInstallGuideX.addEventListener('click', closeInstallGuideModal);
     }
 
     if (dom.installGuideModal) {
       dom.installGuideModal.addEventListener('click', (e) => {
         if (e.target === dom.installGuideModal) {
-          closeInstallGuide();
+          closeInstallGuideModal();
         }
       });
     }
