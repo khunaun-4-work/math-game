@@ -72,7 +72,6 @@
     submitBtn: document.getElementById('submitBtn'),
     newQuestionBtn: document.getElementById('newQuestionBtn'),
     changeQuestionBtn: document.getElementById('changeQuestionBtn'),
-    swapNumbersBtn: document.getElementById('swapNumbersBtn'),
     toggleHintBtn: document.getElementById('toggleHintBtn'),
     hintCaret: document.getElementById('hintCaret'),
     mathHintDropdown: document.getElementById('mathHintDropdown'),
@@ -1593,71 +1592,6 @@
       }
       generateMathProblem();
     });
-
-    // ฟังก์ชันสลับตัวเลขบน-ล่าง
-    function swapNumbers() {
-      initAudio();
-      playPopSound();
-
-      if (state.currentOp === '+') {
-        const temp = state.currentNum1;
-        state.currentNum1 = state.currentNum2;
-        state.currentNum2 = temp;
-        state.correctAnswer = state.currentNum1 + state.currentNum2;
-        state.userAnswer = '';
-        updateVerticalMathDisplay();
-        updateAnswerUI();
-        setSlimeExpression('happy');
-        setSlimeSpeech('สลับตัวตั้งกับตัวบวกแล้วจ้า! ผลลัพธ์เท่าเดิมนะ 💖');
-        dom.feedbackMsg.textContent = 'สลับตัวเลขบน-ล่างแล้ว คิดจากหลักหน่วยก่อนนะ ⬅️';
-      } else if (state.currentOp === '×') {
-        const temp = state.currentNum1;
-        state.currentNum1 = state.currentNum2;
-        state.currentNum2 = temp;
-        state.correctAnswer = state.currentNum1 * state.currentNum2;
-        state.userAnswer = '';
-        updateVerticalMathDisplay();
-        updateAnswerUI();
-        setSlimeExpression('happy');
-        setSlimeSpeech('สลับตัวตั้งกับตัวคูณแล้วจ้า! ผลลัพธ์เท่าเดิมนะ 💖');
-        dom.feedbackMsg.textContent = 'สลับตัวเลขบน-ล่างแล้ว ท่องสูตรคูณได้เลยจ้า 🌟';
-      } else if (state.currentOp === '÷') {
-        // สำหรับการหาร: สลับตัวตั้งกับตัวหาร และเปลี่ยนเป็นโจทย์คูณ
-        const temp = state.currentNum1;
-        state.currentNum1 = state.currentNum2;
-        state.currentNum2 = temp;
-        state.currentOp = '×';
-        state.correctAnswer = state.currentNum1 * state.currentNum2;
-        state.userAnswer = '';
-        dom.modeBadge.textContent = 'การคูณแนวตั้ง';
-        updateVerticalMathDisplay();
-        updateAnswerUI();
-        setSlimeExpression('happy');
-        setSlimeSpeech('การหารสลับที่ไม่ได้จ้า ข้าเปลี่ยนเป็นโจทย์คูณให้แทนนะ! 🌟');
-        dom.feedbackMsg.textContent = 'สลับตัวเลขและเปลี่ยนเป็นโจทย์คูณให้แล้วนะ ⬅️';
-      } else {
-        // สำหรับการลบ: สลับตัวตั้งกับตัวลบ และเปลี่ยนเป็นโจทย์บวก (เพื่อไม่ให้ผลลัพธ์ติดลบ)
-        const temp = state.currentNum1;
-        state.currentNum1 = state.currentNum2;
-        state.currentNum2 = temp;
-        state.currentOp = '+';
-        state.correctAnswer = state.currentNum1 + state.currentNum2;
-        state.userAnswer = '';
-        dom.modeBadge.textContent = 'การบวกแนวตั้ง';
-        updateVerticalMathDisplay();
-        updateAnswerUI();
-        setSlimeExpression('happy');
-        setSlimeSpeech('การลบสลับที่ไม่ได้จ้า ข้าเปลี่ยนเป็นโจทย์บวกให้แทนนะ! 🌟');
-        dom.feedbackMsg.textContent = 'สลับตัวเลขและเปลี่ยนเป็นโจทย์บวกให้แล้วนะ ⬅️';
-      }
-
-      updateHintSidebox();
-    }
-
-    // ปุ่มสลับเลขบน-ล่าง
-    if (dom.swapNumbersBtn) {
-      dom.swapNumbersBtn.addEventListener('click', swapNumbers);
-    }
 
     // ปุ่มเปิด/ปิด กล่องวิธีคิดข้างๆ
     if (dom.toggleHintBtn) {

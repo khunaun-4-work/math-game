@@ -27,10 +27,10 @@
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Google Fonts: IBM Plex Sans Thai & Fredoka เพื่อความสวยงาม คมชัด ทันสมัย -->
+  <!-- Google Fonts: Itim & Fredoka ฟอนต์ไอติมน่ารัก กลมกล่อม อบอุ่น อ่านง่าย -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Itim&display=swap" rel="stylesheet">
   
   <!-- Critical CSS พื้นหลังเต็มจอ ป้องกันขอบขาวบน iPad Standalone Mode 100% -->
   <style>
@@ -38,7 +38,7 @@
       background-color: #4834d4;
       background: linear-gradient(135deg, #4834d4 0%, #686de0 40%, #be2edd 100%);
       background-attachment: fixed;
-      font-family: 'IBM Plex Sans Thai', sans-serif;
+      font-family: 'Itim', cursive, sans-serif;
       width: 100%;
       height: 100%;
       min-height: 100%;
@@ -48,7 +48,7 @@
       overflow: hidden;
     }
   </style>
-  <link rel="stylesheet" href="style.css?v=37">
+  <link rel="stylesheet" href="style.css?v=40">
 </head>
 <body>
   <!-- พื้นหลังดาวและฟองสบู่เวทมนตร์ -->
@@ -224,7 +224,7 @@
             <span class="question-number-badge" id="questionBadge">ข้อที่ 1</span>
             <span class="mode-badge" id="modeBadge">บวกและลบ</span>
           </div>
-          <!-- ปุ่มเปลี่ยนโจทย์ & ปุ่มสลับเลข & ปุ่มวิธีคิด (Dropdown) -->
+          <!-- ปุ่มเปลี่ยนโจทย์ & ปุ่มวิธีคิด (Dropdown) -->
           <div class="math-action-buttons">
             <!-- Dropdown วิธีคิด อยู่ใกล้ๆ โจทย์ ลอยลงมาโดยไม่ขยับตำแหน่งโจทย์ -->
             <div class="hint-dropdown-wrapper">
@@ -244,9 +244,6 @@
             </div>
             <button type="button" id="changeQuestionBtn" class="pill-btn change-btn" title="เปลี่ยนโจทย์ข้อใหม่">
               <span class="btn-icon">🔄</span> เปลี่ยนโจทย์
-            </button>
-            <button type="button" id="swapNumbersBtn" class="pill-btn swap-btn" title="สลับตำแหน่งตัวเลขบน-ล่าง">
-              <span class="btn-icon">🔀</span> สลับเลข
             </button>
           </div>
         </div>
@@ -873,12 +870,12 @@
     window.closeInstallGuideModal = closeInstallGuideModal;
     window.switchGuideTab = switchGuideTab;
   </script>
-  <script src="script.js?v=37"></script>
+  <script src="script.js?v=40"></script>
   <script>
     // ลงทะเบียน Service Worker สำหรับการเล่นแบบ Offline บน iPad & มือถือ
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=37')
+        navigator.serviceWorker.register('./sw.js?v=40')
           .then((reg) => {
             console.log('Service Worker registered for iPad offline play', reg);
             // สั่งอัปเดต Service Worker ทันทีเมื่อมีการรีเฟรชหน้า
